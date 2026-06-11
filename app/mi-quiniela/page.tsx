@@ -206,8 +206,8 @@ export default function MiQuiniela() {
           </p>
         </div>
 
-        <div className="border border-pink-500 rounded-3xl overflow-hidden">
-          <div className="grid grid-cols-[70px_1fr_180px_180px_180px] bg-black border-b border-pink-500">
+        <div className="border border-pink-500 rounded-3xl overflow-x-auto">
+         <div className="grid min-w-[820px] grid-cols-[70px_1fr_180px_180px_180px] bg-black border-b border-pink-500">
             <div className="p-4 font-bold text-center text-pink-400">#</div>
             <div className="p-4 font-bold">PARTIDO</div>
             <div className="p-4 font-bold text-center text-pink-400">LOCAL</div>
@@ -218,7 +218,7 @@ export default function MiQuiniela() {
           {partidos.map((partido) => (
             <div
               key={partido.id}
-              className="grid grid-cols-[70px_1fr_180px_180px_180px] border-b border-gray-800 items-center hover:bg-gray-950"
+              className="grid min-w-[820px] grid-cols-[70px_1fr_180px_180px_180px] border-b border-gray-800 items-center hover:bg-gray-950"
             >
               <div className="text-center text-pink-400 font-bold">
                 {partido.id}
