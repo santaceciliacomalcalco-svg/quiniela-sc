@@ -17,6 +17,7 @@ import {
 type Participante = {
   id: string;
   nombre: string;
+  pagado?: boolean;
 };
 
 export default function Admin() {
@@ -67,13 +68,28 @@ useEffect(() => {
   async function cargarParticipantes() {
     const snapshot = await getDocs(collection(db, "participantes"));
 
-    const lista = snapshot.docs.map((documento) => ({
-      id: documento.id,
-      nombre: documento.data().nombre,
-    })) as Participante[];
+    const lista = snapshot.docs
+  .map((documento) => ({
+    id: documento.id,
+    nombre: documento.data().nombre,
+    pagado: documento.data().pagado || false,
+  })) as Participante[];
+
+lista.sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
 
     setParticipantes(lista);
   }
+  async function cambiarPagado(id: string, pagadoActual: boolean) {
+  await setDoc(
+    doc(db, "participantes", id),
+    {
+      pagado: !pagadoActual,
+    },
+    { merge: true }
+  );
+
+  cargarParticipantes();
+}
 
   async function cargarResultados() {
     const referencia = doc(db, "configuracion", "resultados");
@@ -97,10 +113,11 @@ useEffect(() => {
       return;
     }
 
-    await addDoc(collection(db, "participantes"), {
-      nombre: nombre.trim(),
-      creadoEn: new Date(),
-    });
+await addDoc(collection(db, "participantes"), {
+  nombre: nombre.trim(),
+  pagado: false,
+  creadoEn: new Date(),
+});
 
     setNombre("");
     setMensaje("✅ Participante guardado en Firebase.");
@@ -110,6 +127,17 @@ useEffect(() => {
   async function eliminarParticipante(id: string) {
     await deleteDoc(doc(db, "participantes", id));
     await deleteDoc(doc(db, "quinielas", id));
+    async function cambiarPagado(id: string, pagadoActual: boolean) {
+  await setDoc(
+    doc(db, "participantes", id),
+    {
+      pagado: !pagadoActual,
+    },
+    { merge: true }
+  );
+
+  cargarParticipantes();
+}
 
     setMensaje("🗑️ Participante eliminado.");
     cargarParticipantes();
@@ -167,6 +195,9 @@ useEffect(() => {
 
         <section className="border border-pink-500 rounded-3xl p-6 mb-10">
           <h2 className="text-3xl font-black mb-4">👥 Participantes</h2>
+          <p className="text-green-400 font-bold mb-4">
+  Total de participantes: {participantes.length}
+</p>
 
           <div className="flex gap-3 mb-6">
             <input
@@ -190,7 +221,25 @@ useEffect(() => {
                 key={p.id}
                 className="flex justify-between items-center bg-gray-950 border border-gray-800 rounded-xl p-4"
               >
-                <span className="font-bold">{p.nombre}</span>
+                <div className="flex items-center gap-3">
+  <button
+    onClick={() => cambiarPagado(p.id, p.pagado || false)}
+    className={`w-5 h-5 rounded-full border-2 ${
+      p.pagado
+        ? "bg-green-500 border-green-400"
+        : "bg-transparent border-gray-500"
+    }`}
+    title={p.pagado ? "Pagado" : "Pendiente de pago"}
+  />
+
+  <span className="font-bold">{p.nombre}</span>
+
+  {p.pagado && (
+    <span className="text-green-400 text-sm font-bold">
+      Pagado
+    </span>
+  )}
+</div>
 
                 <button
                   onClick={() => eliminarParticipante(p.id)}
