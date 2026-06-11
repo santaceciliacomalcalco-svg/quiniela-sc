@@ -4,7 +4,7 @@ import "./globals.css";
 
 export const metadata = {
   title: "Quiniela SC",
-  description: "Plataforma de quinielas",
+  description: "Registro y Tablas Quiniela SC",
 };
 
 export default function RootLayout({
