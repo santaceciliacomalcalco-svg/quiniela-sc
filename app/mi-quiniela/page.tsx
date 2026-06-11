@@ -48,6 +48,7 @@ export default function MiQuiniela() {
   const [selecciones, setSelecciones] = useState<Record<number, string>>({});
   const [mensaje, setMensaje] = useState("");
   const [cargando, setCargando] = useState(true);
+  const [bloqueada, setBloqueada] = useState(false);
 
   async function cargarParticipantes() {
     const snapshot = await getDocs(collection(db, "participantes"));
@@ -73,11 +74,13 @@ export default function MiQuiniela() {
 
     if (documento.exists()) {
       setSelecciones(documento.data().selecciones || {});
+      setBloqueada(true);
+      setMensaje("🔒 Esta quiniela ya fue guardada y no se puede modificar.");
     } else {
       setSelecciones({});
+      setBloqueada(false);
+      setMensaje("");
     }
-
-    setMensaje("");
   }
 
   useEffect(() => {
@@ -90,7 +93,21 @@ export default function MiQuiniela() {
     }
   }, [participanteId]);
 
+  function seleccionar(partidoId: number, valor: string) {
+    if (bloqueada) {
+      setMensaje("🔒 Esta quiniela ya está bloqueada.");
+      return;
+    }
+
+    setSelecciones({ ...selecciones, [partidoId]: valor });
+  }
+
   async function guardarQuiniela() {
+    if (bloqueada) {
+      setMensaje("🔒 Esta quiniela ya fue guardada y no se puede modificar.");
+      return;
+    }
+
     if (!participanteId) {
       setMensaje("⚠️ Primero selecciona un participante.");
       return;
@@ -107,16 +124,22 @@ export default function MiQuiniela() {
       participanteId,
       participanteNombre: participante?.nombre || "Sin nombre",
       selecciones,
+      bloqueada: true,
       actualizadoEn: new Date(),
     });
 
-    setMensaje("✅ Quiniela guardada en Firebase correctamente.");
+    setBloqueada(true);
+    setMensaje("✅ Quiniela guardada y bloqueada correctamente.");
   }
 
   function botonClase(
     tipo: "local" | "empate" | "visita",
     seleccionado: boolean
   ) {
+    if (bloqueada && !seleccionado) {
+      return "bg-gray-900 text-gray-600 border border-gray-800 cursor-not-allowed opacity-60";
+    }
+
     if (tipo === "local") {
       return seleccionado
         ? "bg-pink-500 text-white ring-4 ring-pink-200 scale-110 shadow-lg shadow-pink-500/60"
@@ -148,6 +171,12 @@ export default function MiQuiniela() {
         <p className="text-gray-400 mb-6">
           Selecciona Local, Empate o Visita. Cada acierto vale 1 punto.
         </p>
+
+        {bloqueada && (
+          <div className="bg-yellow-500/10 border border-yellow-400 text-yellow-300 rounded-2xl p-4 mb-6 font-bold">
+            🔒 Esta quiniela ya está guardada. Puedes verla, pero ya no modificarla.
+          </div>
+        )}
 
         <div className="border border-pink-500 rounded-2xl p-5 mb-8">
           <label className="block text-gray-400 mb-2 font-bold">
@@ -181,15 +210,9 @@ export default function MiQuiniela() {
           <div className="grid grid-cols-[70px_1fr_180px_180px_180px] bg-black border-b border-pink-500">
             <div className="p-4 font-bold text-center text-pink-400">#</div>
             <div className="p-4 font-bold">PARTIDO</div>
-            <div className="p-4 font-bold text-center text-pink-400">
-              LOCAL
-            </div>
-            <div className="p-4 font-bold text-center text-white">
-              EMPATE
-            </div>
-            <div className="p-4 font-bold text-center text-blue-400">
-              VISITA
-            </div>
+            <div className="p-4 font-bold text-center text-pink-400">LOCAL</div>
+            <div className="p-4 font-bold text-center text-white">EMPATE</div>
+            <div className="p-4 font-bold text-center text-blue-400">VISITA</div>
           </div>
 
           {partidos.map((partido) => (
@@ -207,26 +230,21 @@ export default function MiQuiniela() {
 
               <div className="p-2">
                 <button
-                  onClick={() =>
-                    setSelecciones({ ...selecciones, [partido.id]: "local" })
-                  }
+                  disabled={bloqueada}
+                  onClick={() => seleccionar(partido.id, "local")}
                   className={`w-full py-3 rounded-xl font-bold transition-all duration-200 ${botonClase(
                     "local",
                     selecciones[partido.id] === "local"
                   )}`}
                 >
-                  {textoBoton(
-                    partido.local,
-                    selecciones[partido.id] === "local"
-                  )}
+                  {textoBoton(partido.local, selecciones[partido.id] === "local")}
                 </button>
               </div>
 
               <div className="p-2">
                 <button
-                  onClick={() =>
-                    setSelecciones({ ...selecciones, [partido.id]: "empate" })
-                  }
+                  disabled={bloqueada}
+                  onClick={() => seleccionar(partido.id, "empate")}
                   className={`w-full py-3 rounded-xl font-bold transition-all duration-200 ${botonClase(
                     "empate",
                     selecciones[partido.id] === "empate"
@@ -238,18 +256,14 @@ export default function MiQuiniela() {
 
               <div className="p-2">
                 <button
-                  onClick={() =>
-                    setSelecciones({ ...selecciones, [partido.id]: "visita" })
-                  }
+                  disabled={bloqueada}
+                  onClick={() => seleccionar(partido.id, "visita")}
                   className={`w-full py-3 rounded-xl font-bold transition-all duration-200 ${botonClase(
                     "visita",
                     selecciones[partido.id] === "visita"
                   )}`}
                 >
-                  {textoBoton(
-                    partido.visitante,
-                    selecciones[partido.id] === "visita"
-                  )}
+                  {textoBoton(partido.visitante, selecciones[partido.id] === "visita")}
                 </button>
               </div>
             </div>
@@ -257,15 +271,17 @@ export default function MiQuiniela() {
         </div>
 
         <div className="flex flex-col items-center mt-10 gap-4">
-          <button
-            onClick={guardarQuiniela}
-            className="bg-pink-600 hover:bg-pink-500 text-white font-bold text-xl px-12 py-4 rounded-2xl shadow-lg shadow-pink-500/40 transition-all"
-          >
-            💾 Guardar Quiniela
-          </button>
+          {!bloqueada && (
+            <button
+              onClick={guardarQuiniela}
+              className="bg-pink-600 hover:bg-pink-500 text-white font-bold text-xl px-12 py-4 rounded-2xl shadow-lg shadow-pink-500/40 transition-all"
+            >
+              💾 Guardar Quiniela
+            </button>
+          )}
 
           {mensaje && (
-            <p className="text-xl font-bold text-yellow-400">
+            <p className="text-xl font-bold text-yellow-400 text-center">
               {mensaje}
             </p>
           )}
