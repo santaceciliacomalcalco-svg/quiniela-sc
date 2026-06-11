@@ -21,11 +21,9 @@ export default function RootLayout({
             </Link>
 
             <div className="flex gap-4 text-sm font-bold">
-              <Link href="/" className="hover:text-pink-400">Inicio</Link>
               <Link href="/mi-quiniela" className="hover:text-pink-400">Mi Quiniela</Link>
               <Link href="/quinielas" className="hover:text-pink-400">Quinielas</Link>
               <Link href="/tabla" className="hover:text-pink-400">Tabla</Link>
-              <Link href="/reglas" className="hover:text-pink-400">Reglas</Link>
               <Link href="/admin" className="text-yellow-400 hover:text-yellow-300">Admin</Link>
             </div>
           </div>
