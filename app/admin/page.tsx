@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { db } from "../lib/firebase";
+import { db, auth } from "../lib/firebase";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { useRouter } from "next/navigation";
 import {
   addDoc,
   collection,
@@ -18,6 +20,18 @@ type Participante = {
 };
 
 export default function Admin() {
+
+  const router = useRouter();
+
+useEffect(() => {
+  const unsubscribe = onAuthStateChanged(auth, (user) => {
+    if (!user || user.email !== "santaceciliacomalcalco@gmail.com") {
+      router.push("/login");
+    }
+  });
+
+  return () => unsubscribe();
+}, [router]);
   const partidos = [
     { id: 1, local: "México", visitante: "Sudáfrica" },
     { id: 2, local: "Corea del Sur", visitante: "República Checa" },

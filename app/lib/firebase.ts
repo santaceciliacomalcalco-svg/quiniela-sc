@@ -1,8 +1,9 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "A1zaSyAOEIKRtitvUcOyq-jIkMbRpiPp3WFX6mM",
+  apiKey: "AIzaSyAOEIKRtitvUcOyq-jIkMbRpiPp3WFX6mM",
   authDomain: "quiniela-sc.firebaseapp.com",
   projectId: "quiniela-sc",
   storageBucket: "quiniela-sc.firebasestorage.app",
@@ -13,3 +14,4 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 export const db = getFirestore(app);
+export const auth = getAuth(app);
