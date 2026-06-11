@@ -29,9 +29,10 @@ export default function RootLayout({
                 height={70}
               />
 
-              <span className="text-3xl font-black">
-                QUINIELA <span className="text-pink-500">SC</span>
-              </span>
+             <span className="text-3xl font-black">
+  QUINIELA <span className="text-pink-500">SC</span>
+  <span className="ml-2">🏆</span>
+</span>
             </Link>
 
             <div className="flex justify-center gap-6 text-base font-bold flex-wrap">
