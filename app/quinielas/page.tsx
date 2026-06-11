@@ -105,9 +105,12 @@ export default function Quinielas() {
       <div className="max-w-7xl mx-auto">
         <h1 className="text-5xl font-black mb-2">👥 Quinielas Registradas</h1>
 
-        <p className="text-gray-400 mb-8">
-          Revisa las quinielas guardadas en Firebase.
+        <p className="text-yellow-400 mb-8">
+          Revisa las quinielas guardadas de la semana.
         </p>
+        <p className="text-pink-400 font-bold mb-6">
+  Total de participantes: {participantes.length}
+</p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {participantes.map((participante) => {
