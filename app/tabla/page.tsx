@@ -89,36 +89,74 @@ export default function TablaPage() {
       .sort((a, b) => b.puntos - a.puntos);
   }, [participantes, quinielas, resultados]);
 
+  function medalla(index: number) {
+    if (index === 0) return "🥇";
+    if (index === 1) return "🥈";
+    if (index === 2) return "🥉";
+    return index + 1;
+  }
+
   if (loading) {
-    return <div className="p-6">Cargando tabla...</div>;
+    return (
+      <main className="min-h-screen bg-black text-white flex items-center justify-center">
+        <p className="text-xl font-bold text-pink-400">Cargando tabla...</p>
+      </main>
+    );
   }
 
   return (
-    <main className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Tabla Quiniela SC</h1>
+    <main className="min-h-screen bg-black text-white p-6">
+      <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-8">
+          <h1 className="text-5xl font-black mb-2">
+            🏆 Tabla General
+          </h1>
+          <p className="text-gray-400">
+            Ranking oficial de la Quiniela Santa Cecilia
+          </p>
+        </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full border border-gray-300">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border p-2 text-left">Posición</th>
-              <th className="border p-2 text-left">Participante</th>
-              <th className="border p-2 text-center">Puntos</th>
-            </tr>
-          </thead>
+        <div className="border border-pink-500 rounded-3xl overflow-hidden shadow-2xl shadow-pink-500/20">
+          <div className="grid grid-cols-[90px_1fr_120px] bg-pink-600 text-white font-black text-sm md:text-base">
+            <div className="p-4 text-center">POS</div>
+            <div className="p-4">PARTICIPANTE</div>
+            <div className="p-4 text-center">PTS</div>
+          </div>
 
-          <tbody>
-            {tabla.map((item, index) => (
-              <tr key={item.id}>
-                <td className="border p-2">{index + 1}</td>
-                <td className="border p-2">{item.nombre}</td>
-                <td className="border p-2 text-center font-bold">
+          {tabla.map((item, index) => (
+            <div
+              key={item.id}
+              className={`grid grid-cols-[90px_1fr_120px] items-center border-b border-gray-800 ${
+                index === 0
+                  ? "bg-yellow-500/10"
+                  : index === 1
+                  ? "bg-gray-400/10"
+                  : index === 2
+                  ? "bg-orange-500/10"
+                  : "bg-gray-950"
+              }`}
+            >
+              <div className="p-4 text-center text-2xl font-black">
+                {medalla(index)}
+              </div>
+
+              <div className="p-4">
+                <p className="font-black text-lg">{item.nombre}</p>
+                {index === 0 && (
+                  <p className="text-yellow-400 text-sm font-bold">
+                    Líder actual
+                  </p>
+                )}
+              </div>
+
+              <div className="p-4 text-center">
+                <span className="inline-flex items-center justify-center min-w-14 rounded-full bg-black border border-pink-500 px-4 py-2 text-xl font-black text-pink-400">
                   {item.puntos}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </main>
   );
