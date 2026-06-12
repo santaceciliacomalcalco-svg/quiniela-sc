@@ -2,13 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { db } from "../lib/firebase";
-import {
-  collection,
-  doc,
-  getDocs,
-  getDoc,
-  setDoc,
-} from "firebase/firestore";
+import { collection, doc, getDocs, getDoc, setDoc } from "firebase/firestore";
 
 type Participante = {
   id: string;
@@ -52,10 +46,14 @@ export default function MiQuiniela() {
 
   async function cargarParticipantes() {
     const snapshot = await getDocs(collection(db, "participantes"));
-    const lista = snapshot.docs.map((documento) => ({
-      id: documento.id,
-      nombre: documento.data().nombre,
-    })) as Participante[];
+
+    const lista = snapshot.docs
+      .map((documento) => ({
+        id: documento.id,
+        nombre: documento.data().nombre,
+      })) as Participante[];
+
+    lista.sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
 
     setParticipantes(lista);
 
@@ -142,18 +140,18 @@ export default function MiQuiniela() {
 
     if (tipo === "local") {
       return seleccionado
-        ? "bg-pink-500 text-white ring-4 ring-pink-200 scale-110 shadow-lg shadow-pink-500/60"
+        ? "bg-pink-500 text-white ring-2 ring-pink-200 shadow-lg shadow-pink-500/40"
         : "bg-black text-pink-400 border border-pink-500 hover:bg-pink-600 hover:text-white";
     }
 
     if (tipo === "empate") {
       return seleccionado
-        ? "bg-white text-black ring-4 ring-gray-300 scale-110 shadow-lg shadow-white/50"
+        ? "bg-white text-black ring-2 ring-gray-300 shadow-lg shadow-white/40"
         : "bg-black text-white border border-white hover:bg-white hover:text-black";
     }
 
     return seleccionado
-      ? "bg-blue-600 text-white ring-4 ring-blue-300 scale-110 shadow-lg shadow-blue-500/60"
+      ? "bg-blue-600 text-white ring-2 ring-blue-300 shadow-lg shadow-blue-500/40"
       : "bg-black text-blue-400 border border-blue-500 hover:bg-blue-700 hover:text-white";
   }
 
@@ -165,20 +163,21 @@ export default function MiQuiniela() {
     <main className="min-h-screen bg-black text-white p-6">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-5xl font-black mb-2 flex items-center gap-3">
-  ⚽ Mi Quiniela
-</h1>
+          ⚽ Mi Quiniela
+        </h1>
 
-<p className="text-pink-400 text-xl font-bold mb-2">
-  🔍 Busca tu nombre y rellena tu quiniela
-</p>
+        <p className="text-pink-400 text-xl font-bold mb-2">
+          🔍 Busca tu nombre y rellena tu quiniela
+        </p>
 
-<p className="text-gray-400 mb-6">
-  Selecciona Local, Empate o Visita. Cada acierto vale 1 punto.
-</p>
+        <p className="text-gray-400 mb-6">
+          Selecciona Local, Empate o Visita. Cada acierto vale 1 punto.
+        </p>
 
         {bloqueada && (
           <div className="bg-yellow-500/10 border border-yellow-400 text-yellow-300 rounded-2xl p-4 mb-6 font-bold">
-            🔒 Esta quiniela ya está guardada. Puedes verla, pero ya no modificarla.
+            🔒 Esta quiniela ya está guardada. Puedes verla, pero ya no
+            modificarla.
           </div>
         )}
 
@@ -210,64 +209,58 @@ export default function MiQuiniela() {
           </p>
         </div>
 
-        <div className="border border-pink-500 rounded-3xl overflow-x-auto">
-         <div className="grid min-w-[820px] grid-cols-[70px_1fr_180px_180px_180px] bg-black border-b border-pink-500">
-            <div className="p-4 font-bold text-center text-pink-400">#</div>
-            <div className="p-4 font-bold">PARTIDO</div>
-            <div className="p-4 font-bold text-center text-pink-400">LOCAL</div>
-            <div className="p-4 font-bold text-center text-white">EMPATE</div>
-            <div className="p-4 font-bold text-center text-blue-400">VISITA</div>
-          </div>
-
+        <div className="space-y-4">
           {partidos.map((partido) => (
             <div
               key={partido.id}
-              className="grid min-w-[820px] grid-cols-[70px_1fr_180px_180px_180px] border-b border-gray-800 items-center hover:bg-gray-950"
+              className="border border-pink-500 rounded-2xl p-4 bg-black"
             >
-              <div className="text-center text-pink-400 font-bold">
-                {partido.id}
-              </div>
+              <p className="text-pink-400 font-black text-sm">
+                Partido {partido.id}
+              </p>
 
-              <div className="p-4 font-medium">
+              <h2 className="text-xl font-black mt-1 mb-4">
                 {partido.local} vs {partido.visitante}
-              </div>
+              </h2>
 
-              <div className="p-2">
+              <div className="grid grid-cols-3 gap-2">
                 <button
                   disabled={bloqueada}
                   onClick={() => seleccionar(partido.id, "local")}
-                  className={`w-full py-3 rounded-xl font-bold transition-all duration-200 ${botonClase(
+                  className={`w-full min-h-[54px] px-2 py-2 rounded-xl font-bold text-xs sm:text-sm transition-all duration-200 leading-tight ${botonClase(
                     "local",
                     selecciones[partido.id] === "local"
                   )}`}
                 >
-                  {textoBoton(partido.local, selecciones[partido.id] === "local")}
+                  {textoBoton(
+                    partido.local,
+                    selecciones[partido.id] === "local"
+                  )}
                 </button>
-              </div>
 
-              <div className="p-2">
                 <button
                   disabled={bloqueada}
                   onClick={() => seleccionar(partido.id, "empate")}
-                  className={`w-full py-3 rounded-xl font-bold transition-all duration-200 ${botonClase(
+                  className={`w-full min-h-[54px] px-2 py-2 rounded-xl font-bold text-xs sm:text-sm transition-all duration-200 leading-tight ${botonClase(
                     "empate",
                     selecciones[partido.id] === "empate"
                   )}`}
                 >
                   {textoBoton("Empate", selecciones[partido.id] === "empate")}
                 </button>
-              </div>
 
-              <div className="p-2">
                 <button
                   disabled={bloqueada}
                   onClick={() => seleccionar(partido.id, "visita")}
-                  className={`w-full py-3 rounded-xl font-bold transition-all duration-200 ${botonClase(
+                  className={`w-full min-h-[54px] px-2 py-2 rounded-xl font-bold text-xs sm:text-sm transition-all duration-200 leading-tight ${botonClase(
                     "visita",
                     selecciones[partido.id] === "visita"
                   )}`}
                 >
-                  {textoBoton(partido.visitante, selecciones[partido.id] === "visita")}
+                  {textoBoton(
+                    partido.visitante,
+                    selecciones[partido.id] === "visita"
+                  )}
                 </button>
               </div>
             </div>
