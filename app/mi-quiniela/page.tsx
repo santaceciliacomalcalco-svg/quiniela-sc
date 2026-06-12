@@ -165,12 +165,16 @@ export default function MiQuiniela() {
     <main className="min-h-screen bg-black text-white p-6">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-5xl font-black mb-2 flex items-center gap-3">
-          ⚽ Mi Quiniela
-        </h1>
+  ⚽ Mi Quiniela
+</h1>
 
-        <p className="text-gray-400 mb-6">
-          Selecciona Local, Empate o Visita. Cada acierto vale 1 punto.
-        </p>
+<p className="text-pink-400 text-xl font-bold mb-2">
+  🔍 Busca tu nombre y rellena tu quiniela
+</p>
+
+<p className="text-gray-400 mb-6">
+  Selecciona Local, Empate o Visita. Cada acierto vale 1 punto.
+</p>
 
         {bloqueada && (
           <div className="bg-yellow-500/10 border border-yellow-400 text-yellow-300 rounded-2xl p-4 mb-6 font-bold">
