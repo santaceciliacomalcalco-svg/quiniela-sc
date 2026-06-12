@@ -45,37 +45,39 @@ export default function RootLayout({
               </span>
             </Link>
 
-            <div className="flex flex-col items-center gap-3">
+            <div className="flex flex-col items-center gap-4">
 
-              <div className="flex justify-center gap-6 text-base font-bold flex-wrap">
+              <Link
+                href="/admin"
+                className="text-sm font-bold text-yellow-400 border border-yellow-500 rounded-full px-5 py-2 hover:bg-yellow-500 hover:text-black transition"
+              >
+                🔒 Admin
+              </Link>
+
+              <div className="flex justify-center gap-3 flex-wrap">
+
                 <Link
                   href="/mi-quiniela"
-                  className="hover:text-pink-400"
+                  className="border border-pink-500 text-white font-bold rounded-full px-5 py-2 hover:bg-pink-500 transition"
                 >
                   Mi Quiniela
                 </Link>
 
                 <Link
                   href="/quinielas"
-                  className="hover:text-pink-400"
+                  className="border border-pink-500 text-white font-bold rounded-full px-5 py-2 hover:bg-pink-500 transition"
                 >
                   Quinielas
                 </Link>
 
                 <Link
                   href="/tabla"
-                  className="hover:text-pink-400"
+                  className="border border-pink-500 text-white font-bold rounded-full px-5 py-2 hover:bg-pink-500 transition"
                 >
                   Tabla
                 </Link>
-              </div>
 
-              <Link
-                href="/admin"
-                className="text-xs font-bold text-yellow-400 border border-yellow-500 rounded-full px-4 py-1 hover:bg-yellow-500 hover:text-black transition"
-              >
-                Admin
-              </Link>
+              </div>
 
             </div>
 
