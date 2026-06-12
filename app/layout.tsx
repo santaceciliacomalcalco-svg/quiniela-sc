@@ -4,13 +4,37 @@ import "./globals.css";
 
 export const metadata = {
   title: "Quiniela SC",
-  description: "Quiniela oficial de Santa Cecilia FC",
+  description: "La quiniela oficial de Santa Cecilia",
 
   manifest: "/manifest.json",
 
   icons: {
     icon: "/logo-santa.png",
     apple: "/logo-santa.png",
+  },
+
+  openGraph: {
+    title: "Quiniela SC",
+    description: "Participa, compite y escala posiciones en la Quiniela SC.",
+    url: "https://quiniela-sc.vercel.app",
+    siteName: "Quiniela SC",
+    images: [
+      {
+        url: "/og-quiniela.png",
+        width: 1200,
+        height: 630,
+        alt: "Quiniela SC",
+      },
+    ],
+    locale: "es_MX",
+    type: "website",
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "Quiniela SC",
+    description: "Participa en la Quiniela SC.",
+    images: ["/og-quiniela.png"],
   },
 
   themeColor: "#ec008c",
@@ -36,6 +60,7 @@ export default function RootLayout({
                 alt="Santa Cecilia FC"
                 width={70}
                 height={70}
+                priority
               />
 
               <span className="text-3xl font-black">
@@ -49,7 +74,7 @@ export default function RootLayout({
 
               <Link
                 href="/admin"
-                className="text-sm font-bold text-yellow-400 border border-yellow-500 rounded-full px-5 py-2 hover:bg-yellow-500 hover:text-black transition"
+                className="text-sm font-bold text-yellow-400 border border-yellow-500 rounded-full px-5 py-2 hover:bg-yellow-500 hover:text-black transition-all"
               >
                 🔒 Admin
               </Link>
@@ -58,21 +83,21 @@ export default function RootLayout({
 
                 <Link
                   href="/mi-quiniela"
-                  className="border border-pink-500 text-white font-bold rounded-full px-5 py-2 hover:bg-pink-500 transition"
+                  className="border border-pink-500 text-white font-bold rounded-full px-5 py-2 hover:bg-pink-500 transition-all"
                 >
                   Mi Quiniela
                 </Link>
 
                 <Link
                   href="/quinielas"
-                  className="border border-pink-500 text-white font-bold rounded-full px-5 py-2 hover:bg-pink-500 transition"
+                  className="border border-pink-500 text-white font-bold rounded-full px-5 py-2 hover:bg-pink-500 transition-all"
                 >
                   Quinielas
                 </Link>
 
                 <Link
                   href="/tabla"
-                  className="border border-pink-500 text-white font-bold rounded-full px-5 py-2 hover:bg-pink-500 transition"
+                  className="border border-pink-500 text-white font-bold rounded-full px-5 py-2 hover:bg-pink-500 transition-all"
                 >
                   Tabla
                 </Link>
