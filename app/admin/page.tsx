@@ -278,73 +278,60 @@ await addDoc(collection(db, "participantes"), {
             </div>
           </div>
 
-          <div className="border border-pink-500 rounded-3xl overflow-hidden">
-            <div className="grid grid-cols-[70px_1fr_180px_180px_180px] bg-black border-b border-pink-500">
-              <div className="p-4 font-bold text-center text-pink-400">#</div>
-              <div className="p-4 font-bold">PARTIDO</div>
-              <div className="p-4 font-bold text-center text-pink-400">LOCAL</div>
-              <div className="p-4 font-bold text-center text-white">EMPATE</div>
-              <div className="p-4 font-bold text-center text-blue-400">VISITA</div>
-            </div>
+          <div className="space-y-4">
+  {partidos.map((partido) => (
+    <div
+      key={partido.id}
+      className="border border-pink-500 rounded-2xl p-4 bg-black"
+    >
+      <p className="text-pink-400 font-black text-sm">
+        Partido {partido.id}
+      </p>
 
-            {partidos.map((partido) => (
-              <div
-                key={partido.id}
-                className="grid grid-cols-[70px_1fr_180px_180px_180px] border-b border-gray-800 items-center hover:bg-gray-950"
-              >
-                <div className="text-center text-pink-400 font-bold">
-                  {partido.id}
-                </div>
+      <h2 className="text-xl font-black mt-1 mb-4">
+        {partido.local} vs {partido.visitante}
+      </h2>
 
-                <div className="p-4 font-medium">
-                  {partido.local} vs {partido.visitante}
-                </div>
+      <div className="grid grid-cols-3 gap-2">
+        <button
+          onClick={() =>
+            setResultados({ ...resultados, [partido.id]: "local" })
+          }
+          className={`w-full min-h-[54px] px-2 py-2 rounded-xl font-bold text-xs sm:text-sm transition-all duration-200 leading-tight ${botonClase(
+            "local",
+            resultados[partido.id] === "local"
+          )}`}
+        >
+          {textoBoton(partido.local, resultados[partido.id] === "local")}
+        </button>
 
-                <div className="p-2">
-                  <button
-                    onClick={() =>
-                      setResultados({ ...resultados, [partido.id]: "local" })
-                    }
-                    className={`w-full py-3 rounded-xl font-bold transition-all duration-200 ${botonClase(
-                      "local",
-                      resultados[partido.id] === "local"
-                    )}`}
-                  >
-                    {textoBoton(partido.local, resultados[partido.id] === "local")}
-                  </button>
-                </div>
+        <button
+          onClick={() =>
+            setResultados({ ...resultados, [partido.id]: "empate" })
+          }
+          className={`w-full min-h-[54px] px-2 py-2 rounded-xl font-bold text-xs sm:text-sm transition-all duration-200 leading-tight ${botonClase(
+            "empate",
+            resultados[partido.id] === "empate"
+          )}`}
+        >
+          {textoBoton("Empate", resultados[partido.id] === "empate")}
+        </button>
 
-                <div className="p-2">
-                  <button
-                    onClick={() =>
-                      setResultados({ ...resultados, [partido.id]: "empate" })
-                    }
-                    className={`w-full py-3 rounded-xl font-bold transition-all duration-200 ${botonClase(
-                      "empate",
-                      resultados[partido.id] === "empate"
-                    )}`}
-                  >
-                    {textoBoton("Empate", resultados[partido.id] === "empate")}
-                  </button>
-                </div>
-
-                <div className="p-2">
-                  <button
-                    onClick={() =>
-                      setResultados({ ...resultados, [partido.id]: "visita" })
-                    }
-                    className={`w-full py-3 rounded-xl font-bold transition-all duration-200 ${botonClase(
-                      "visita",
-                      resultados[partido.id] === "visita"
-                    )}`}
-                  >
-                    {textoBoton(partido.visitante, resultados[partido.id] === "visita")}
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-
+        <button
+          onClick={() =>
+            setResultados({ ...resultados, [partido.id]: "visita" })
+          }
+          className={`w-full min-h-[54px] px-2 py-2 rounded-xl font-bold text-xs sm:text-sm transition-all duration-200 leading-tight ${botonClase(
+            "visita",
+            resultados[partido.id] === "visita"
+          )}`}
+        >
+          {textoBoton(partido.visitante, resultados[partido.id] === "visita")}
+        </button>
+      </div>
+    </div>
+  ))}
+</div>
           <div className="flex justify-center gap-4 mt-10">
             <button
               onClick={guardarResultados}
