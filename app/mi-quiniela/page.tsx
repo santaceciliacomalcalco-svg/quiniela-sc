@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { db } from "../lib/firebase";
+import { getJornadaId } from "../lib/jornada";
 import { collection, doc, getDocs, getDoc, setDoc } from "firebase/firestore";
 
 type Participante = {
@@ -10,6 +11,8 @@ type Participante = {
 };
 
 export default function MiQuiniela() {
+  const jornadaId = getJornadaId();
+
   const partidos = [
     { id: 1, local: "México", visitante: "Sudáfrica" },
     { id: 2, local: "Corea del Sur", visitante: "República Checa" },
@@ -45,13 +48,14 @@ export default function MiQuiniela() {
   const [bloqueada, setBloqueada] = useState(false);
 
   async function cargarParticipantes() {
-    const snapshot = await getDocs(collection(db, "participantes"));
+    const snapshot = await getDocs(
+      collection(db, "jornadas", jornadaId, "participantes")
+    );
 
-    const lista = snapshot.docs
-      .map((documento) => ({
-        id: documento.id,
-        nombre: documento.data().nombre,
-      })) as Participante[];
+    const lista = snapshot.docs.map((documento) => ({
+      id: documento.id,
+      nombre: documento.data().nombre,
+    })) as Participante[];
 
     lista.sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
 
@@ -67,7 +71,7 @@ export default function MiQuiniela() {
   async function cargarQuiniela(id: string) {
     if (!id) return;
 
-    const referencia = doc(db, "quinielas", id);
+    const referencia = doc(db, "jornadas", jornadaId, "quinielas", id);
     const documento = await getDoc(referencia);
 
     if (documento.exists()) {
@@ -118,7 +122,7 @@ export default function MiQuiniela() {
 
     const participante = participantes.find((p) => p.id === participanteId);
 
-    await setDoc(doc(db, "quinielas", participanteId), {
+    await setDoc(doc(db, "jornadas", jornadaId, "quinielas", participanteId), {
       participanteId,
       participanteNombre: participante?.nombre || "Sin nombre",
       selecciones,

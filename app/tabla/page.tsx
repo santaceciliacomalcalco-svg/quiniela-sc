@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
+import { getJornadaId } from "../lib/jornada";
 
 type Participante = {
   id: string;
@@ -21,6 +22,8 @@ type Resultado = {
 };
 
 export default function TablaPage() {
+  const jornadaId = getJornadaId();
+
   const [participantes, setParticipantes] = useState<Participante[]>([]);
   const [quinielas, setQuinielas] = useState<Quiniela[]>([]);
   const [resultados, setResultados] = useState<Resultado>({});
@@ -29,8 +32,13 @@ export default function TablaPage() {
   useEffect(() => {
     async function cargarDatos() {
       try {
-        const participantesSnap = await getDocs(collection(db, "participantes"));
-        const quinielasSnap = await getDocs(collection(db, "quinielas"));
+        const participantesSnap = await getDocs(
+          collection(db, "jornadas", jornadaId, "participantes")
+        );
+
+        const quinielasSnap = await getDocs(
+          collection(db, "jornadas", jornadaId, "quinielas")
+        );
 
         const participantesData = participantesSnap.docs.map((d) => ({
           id: d.id,
@@ -42,7 +50,14 @@ export default function TablaPage() {
           ...d.data(),
         })) as Quiniela[];
 
-        const resultadosRef = doc(db, "configuracion", "resultados");
+        const resultadosRef = doc(
+          db,
+          "jornadas",
+          jornadaId,
+          "configuracion",
+          "resultados"
+        );
+
         const resultadosSnap = await getDoc(resultadosRef);
 
         setParticipantes(participantesData);
@@ -59,7 +74,7 @@ export default function TablaPage() {
     }
 
     cargarDatos();
-  }, []);
+  }, [jornadaId]);
 
   const tabla = useMemo(() => {
     return participantes
@@ -96,7 +111,11 @@ export default function TablaPage() {
     return index + 1;
   }
 
-  async function compartirRanking(nombre: string, posicion: number, puntos: number) {
+  async function compartirRanking(
+    nombre: string,
+    posicion: number,
+    puntos: number
+  ) {
     const mensaje = `🏆 Voy en el lugar #${posicion} de la Quiniela SC con ${puntos} puntos ⚽\n\nCheca la tabla aquí:`;
     const url = "https://quiniela-sc.vercel.app/tabla";
 
@@ -131,6 +150,9 @@ export default function TablaPage() {
           <h1 className="text-5xl font-black mb-2">🏆 Tabla General</h1>
           <p className="text-gray-400">
             Ranking oficial de la Quiniela Santa Cecilia
+          </p>
+          <p className="text-pink-400 font-bold mt-2">
+            Jornada activa: {jornadaId}
           </p>
         </div>
 
@@ -184,6 +206,12 @@ export default function TablaPage() {
               </div>
             </div>
           ))}
+
+          {tabla.length === 0 && (
+            <div className="p-8 text-center text-gray-400 font-bold bg-gray-950">
+              No hay participantes en esta jornada.
+            </div>
+          )}
         </div>
       </div>
     </main>
