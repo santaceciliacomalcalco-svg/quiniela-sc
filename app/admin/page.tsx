@@ -122,11 +122,13 @@ function AdminContent() {
     await addDoc(collection(db, "jornadas", jornadaId, "participantes"), {
       nombre: nombre.trim(),
       pagado: false,
+      jornada: numeroJornada,
+      jornadaId,
       creadoEn: new Date(),
     });
 
     setNombre("");
-    setMensaje("✅ Participante guardado en Firebase.");
+    setMensaje(`✅ Participante guardado en Jornada ${numeroJornada}.`);
     cargarParticipantes();
   }
 
@@ -134,7 +136,7 @@ function AdminContent() {
     await deleteDoc(doc(db, "jornadas", jornadaId, "participantes", id));
     await deleteDoc(doc(db, "jornadas", jornadaId, "quinielas", id));
 
-    setMensaje("🗑️ Participante eliminado.");
+    setMensaje(`🗑️ Participante eliminado de Jornada ${numeroJornada}.`);
     cargarParticipantes();
   }
 
@@ -154,7 +156,7 @@ function AdminContent() {
       actualizadoEn: new Date(),
     });
 
-    setMensaje("✅ Resultados guardados en Firebase.");
+    setMensaje(`✅ Resultados guardados en Jornada ${numeroJornada}.`);
   }
 
   async function reiniciarResultados() {
@@ -164,7 +166,7 @@ function AdminContent() {
     });
 
     setResultados({});
-    setMensaje("🔄 Resultados reiniciados en Firebase.");
+    setMensaje(`🔄 Resultados reiniciados en Jornada ${numeroJornada}.`);
   }
 
   async function guardarEstadosJornadas() {
@@ -224,6 +226,50 @@ function AdminContent() {
       <div className="max-w-7xl mx-auto">
         <h1 className="text-5xl font-black mb-2">🛠️ Panel Admin</h1>
 
+        <div className="bg-yellow-400 text-black text-center p-5 rounded-3xl mb-6 border-4 border-yellow-200 shadow-lg shadow-yellow-500/30">
+          <h2 className="text-3xl md:text-4xl font-black">
+            ⚠️ ESTÁS ADMINISTRANDO LA JORNADA {numeroJornada}
+          </h2>
+          <p className="font-bold mt-2">
+            Todo lo que agregues o edites aquí pertenece únicamente a esta jornada.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-3 mb-6">
+  <button
+    onClick={() => router.push("/admin?jornada=1")}
+    className={`px-6 py-3 rounded-2xl font-black transition-all ${
+      numeroJornada === "1"
+        ? "bg-yellow-400 text-black shadow-lg shadow-yellow-500/40"
+        : "bg-gray-900 text-white border border-gray-700 hover:border-yellow-400"
+    }`}
+  >
+    ⚽ Jornada 1
+  </button>
+
+  <button
+    onClick={() => router.push("/admin?jornada=2")}
+    className={`px-6 py-3 rounded-2xl font-black transition-all ${
+      numeroJornada === "2"
+        ? "bg-yellow-400 text-black shadow-lg shadow-yellow-500/40"
+        : "bg-gray-900 text-white border border-gray-700 hover:border-yellow-400"
+    }`}
+  >
+    ⚽ Jornada 2
+  </button>
+
+  <button
+    onClick={() => router.push("/admin?jornada=3")}
+    className={`px-6 py-3 rounded-2xl font-black transition-all ${
+      numeroJornada === "3"
+        ? "bg-yellow-400 text-black shadow-lg shadow-yellow-500/40"
+        : "bg-gray-900 text-white border border-gray-700 hover:border-yellow-400"
+    }`}
+  >
+    ⚽ Jornada 3
+  </button>
+</div>
+
         <p className="text-pink-400 font-bold mb-2">
           Jornada activa: {numeroJornada}
         </p>
@@ -243,11 +289,21 @@ function AdminContent() {
             {["jornada-1", "jornada-2", "jornada-3"].map((jornada) => (
               <div
                 key={jornada}
-                className="border border-gray-700 rounded-2xl p-4 bg-gray-950"
+                className={`border rounded-2xl p-4 bg-gray-950 ${
+                  jornada === jornadaId
+                    ? "border-yellow-400 shadow-lg shadow-yellow-500/30"
+                    : "border-gray-700"
+                }`}
               >
                 <h3 className="font-black text-xl mb-3">
                   {jornada.replace("jornada-", "Jornada ")}
                 </h3>
+
+                {jornada === jornadaId && (
+                  <p className="text-yellow-300 font-black mb-3">
+                    ⭐ Jornada que estás editando ahora
+                  </p>
+                )}
 
                 <p className="text-yellow-300 font-bold mb-3">
                   Actual: {etiquetaEstado(estadosJornadas[jornada])}
@@ -281,17 +337,23 @@ function AdminContent() {
         </section>
 
         <section className="border border-pink-500 rounded-3xl p-6 mb-10">
-          <h2 className="text-3xl font-black mb-4">👥 Participantes</h2>
+          <h2 className="text-3xl font-black mb-4">
+            👥 Participantes Jornada {numeroJornada}
+          </h2>
 
-          <p className="text-green-400 font-bold mb-4">
-            Total de participantes: {participantes.length}
+          <p className="text-green-400 font-bold mb-2">
+            Total de participantes Jornada {numeroJornada}: {participantes.length}
           </p>
 
-          <div className="flex gap-3 mb-6">
+          <p className="text-yellow-300 font-bold mb-4">
+            ➕ Los nuevos participantes se agregarán a Jornada {numeroJornada}.
+          </p>
+
+          <div className="flex flex-col md:flex-row gap-3 mb-6">
             <input
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
-              placeholder="Nombre del participante"
+              placeholder={`Nombre del participante para Jornada ${numeroJornada}`}
               className="bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 w-full"
             />
 
@@ -299,7 +361,7 @@ function AdminContent() {
               onClick={guardarParticipante}
               className="bg-pink-600 hover:bg-pink-500 px-6 py-3 rounded-xl font-bold"
             >
-              Agregar
+              Agregar a J{numeroJornada}
             </button>
           </div>
 
@@ -320,7 +382,12 @@ function AdminContent() {
                     title={p.pagado ? "Pagado" : "Pendiente de pago"}
                   />
 
-                  <span className="font-bold">{p.nombre}</span>
+                  <div>
+                    <span className="font-bold">{p.nombre}</span>
+                    <p className="text-xs text-gray-400 font-bold">
+                      Jornada {numeroJornada}
+                    </p>
+                  </div>
 
                   {p.pagado && (
                     <span className="text-green-400 text-sm font-bold">
@@ -343,9 +410,11 @@ function AdminContent() {
         <section>
           <div className="flex items-center justify-between gap-4 mb-4">
             <div>
-              <h2 className="text-3xl font-black">🏁 Resultados</h2>
+              <h2 className="text-3xl font-black">
+                🏁 Resultados Jornada {numeroJornada}
+              </h2>
               <p className="text-gray-400">
-                Estos resultados se guardan en Firebase por jornada.
+                Estos resultados se guardan en Firebase únicamente para Jornada {numeroJornada}.
               </p>
             </div>
 
@@ -373,7 +442,7 @@ function AdminContent() {
                 className="border border-pink-500 rounded-2xl p-4 bg-black"
               >
                 <p className="text-pink-400 font-black text-sm">
-                  Partido {partido.id}
+                  Partido {partido.id} · Jornada {numeroJornada}
                 </p>
 
                 <h2 className="text-xl font-black mt-1 mb-4">
@@ -427,19 +496,19 @@ function AdminContent() {
             ))}
           </div>
 
-          <div className="flex justify-center gap-4 mt-10">
+          <div className="flex flex-col md:flex-row justify-center gap-4 mt-10">
             <button
               onClick={guardarResultados}
               className="bg-pink-600 hover:bg-pink-500 text-white font-bold text-xl px-12 py-4 rounded-2xl shadow-lg shadow-pink-500/40 transition-all"
             >
-              💾 Guardar Resultados
+              💾 Guardar Resultados J{numeroJornada}
             </button>
 
             <button
               onClick={reiniciarResultados}
               className="bg-red-700 hover:bg-red-600 text-white font-bold text-xl px-12 py-4 rounded-2xl shadow-lg shadow-red-500/40 transition-all"
             >
-              🗑️ Reiniciar Resultados
+              🗑️ Reiniciar Resultados J{numeroJornada}
             </button>
           </div>
 
