@@ -205,10 +205,6 @@ function MiQuinielaContent() {
           </button>
         </div>
 
-        <p className="text-pink-400 text-xl font-bold mb-2">
-          Jornada activa: {numeroJornada}
-        </p>
-
         <p className="text-gray-400 mb-6">
           Selecciona Local, Empate o Visita. Cada acierto vale 1 punto.
         </p>
