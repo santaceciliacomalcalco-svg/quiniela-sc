@@ -31,7 +31,7 @@ const jornadas = [
     flyer: "/jornada-3.jpg",
     estado: "venta",
     etiqueta: "🟢 En venta",
-    cierre: "Cierra: 24 de junio · 7:00 PM",
+    cierre: "Cierra: 24 de junio · 1:00 PM",
   },
 ];
 
