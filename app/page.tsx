@@ -84,11 +84,11 @@ export default function Home() {
             <p className="text-pink-400 text-3xl md:text-4xl font-black">
               Mundial 2026
             </p>
-            <img
-              src="/fifa-logo.png"
-              alt="FIFA"
-              className="h-12 md:h-16 object-contain"
-            />
+           <img
+  src="/fifa-logo.png"
+  alt="FIFA"
+  className="h-24 w-24 md:h-32 md:w-32 object-contain"
+/>
           </div>
         </div>
 
