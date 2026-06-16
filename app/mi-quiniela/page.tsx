@@ -5,7 +5,7 @@ import { db } from "../lib/firebase";
 import { getJornadaId } from "../lib/jornada";
 import { getPartidos } from "../lib/partidos";
 import { collection, doc, getDocs, getDoc, setDoc } from "firebase/firestore";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 type Participante = {
   id: string;
@@ -13,8 +13,15 @@ type Participante = {
 };
 
 function MiQuinielaContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const jornadaId = getJornadaId(searchParams.get("jornada"));
+
+  const jornadaParam = getJornadaId(searchParams.get("jornada"));
+  const jornadaId = jornadaParam.startsWith("jornada-")
+    ? jornadaParam
+    : `jornada-${jornadaParam}`;
+
+  const numeroJornada = jornadaId.replace("jornada-", "");
   const partidos = getPartidos(jornadaId);
 
   const [participantes, setParticipantes] = useState<Participante[]>([]);
@@ -78,6 +85,10 @@ function MiQuinielaContent() {
     }
   }, [participanteId, jornadaId]);
 
+  function cambiarJornada(numero: number) {
+    router.push(`/mi-quiniela?jornada=${numero}`);
+  }
+
   function seleccionar(partidoId: number, valor: string) {
     if (bloqueada) {
       setMensaje("🔒 Esta quiniela ya está bloqueada.");
@@ -108,13 +119,15 @@ function MiQuinielaContent() {
     await setDoc(doc(db, "jornadas", jornadaId, "quinielas", participanteId), {
       participanteId,
       participanteNombre: participante?.nombre || "Sin nombre",
+      jornadaId,
+      jornada: numeroJornada,
       selecciones,
       bloqueada: true,
       actualizadoEn: new Date(),
     });
 
     setBloqueada(true);
-    setMensaje("✅ Quiniela guardada y bloqueada correctamente.");
+    setMensaje(`✅ Quiniela de Jornada ${numeroJornada} guardada y bloqueada correctamente.`);
   }
 
   function botonClase(
@@ -146,6 +159,12 @@ function MiQuinielaContent() {
     return seleccionado ? `✓ ${texto}` : texto;
   }
 
+  function claseBotonJornada(numero: string) {
+    return numeroJornada === numero
+      ? "bg-pink-600 text-white border-pink-400 shadow-lg shadow-pink-500/40 scale-105"
+      : "bg-gray-950 text-gray-300 border-gray-700 hover:border-pink-500 hover:text-white";
+  }
+
   return (
     <main className="min-h-screen bg-black text-white p-6">
       <div className="max-w-7xl mx-auto">
@@ -153,8 +172,41 @@ function MiQuinielaContent() {
           ⚽ Mi Quiniela
         </h1>
 
+        <p className="text-gray-400 mb-4">
+          Elige tu jornada, busca tu nombre y rellena tu quiniela.
+        </p>
+
+        <div className="flex flex-wrap gap-3 mb-6">
+          <button
+            onClick={() => cambiarJornada(1)}
+            className={`px-5 py-2 rounded-full border text-sm font-black transition-all ${claseBotonJornada(
+              "1"
+            )}`}
+          >
+            Jornada 1
+          </button>
+
+          <button
+            onClick={() => cambiarJornada(2)}
+            className={`px-5 py-2 rounded-full border text-sm font-black transition-all ${claseBotonJornada(
+              "2"
+            )}`}
+          >
+            Jornada 2
+          </button>
+
+          <button
+            onClick={() => cambiarJornada(3)}
+            className={`px-5 py-2 rounded-full border text-sm font-black transition-all ${claseBotonJornada(
+              "3"
+            )}`}
+          >
+            Jornada 3
+          </button>
+        </div>
+
         <p className="text-pink-400 text-xl font-bold mb-2">
-          Jornada activa: {jornadaId}
+          Jornada activa: {numeroJornada}
         </p>
 
         <p className="text-gray-400 mb-6">
@@ -163,13 +215,13 @@ function MiQuinielaContent() {
 
         {bloqueada && (
           <div className="bg-yellow-500/10 border border-yellow-400 text-yellow-300 rounded-2xl p-4 mb-6 font-bold">
-            🔒 Esta quiniela ya está guardada. Puedes verla, pero ya no modificarla.
+            🔒 Esta quiniela de Jornada {numeroJornada} ya está guardada. Puedes verla, pero ya no modificarla.
           </div>
         )}
 
         <div className="border border-pink-500 rounded-2xl p-5 mb-8">
           <label className="block text-gray-400 mb-2 font-bold">
-            Participante
+            Participante de Jornada {numeroJornada}
           </label>
 
           <select
@@ -195,11 +247,11 @@ function MiQuinielaContent() {
           </p>
         </div>
 
-  {!partidos.length && (
-  <div className="border border-yellow-500 bg-yellow-500/10 rounded-2xl p-5 text-yellow-300">
-    ⚠️ No hay partidos cargados para esta jornada.
-  </div>
-)}
+        {!partidos.length && (
+          <div className="border border-yellow-500 bg-yellow-500/10 rounded-2xl p-5 text-yellow-300">
+            ⚠️ No hay partidos cargados para esta jornada.
+          </div>
+        )}
 
         <div className="space-y-4">
           {partidos.map((partido) => (
@@ -208,7 +260,7 @@ function MiQuinielaContent() {
               className="border border-pink-500 rounded-2xl p-4 bg-black"
             >
               <p className="text-pink-400 font-black text-sm">
-                Partido {partido.id}
+                Partido {partido.id} · Jornada {numeroJornada}
               </p>
 
               <h2 className="text-xl font-black mt-1 mb-4">
@@ -259,7 +311,7 @@ function MiQuinielaContent() {
               onClick={guardarQuiniela}
               className="bg-pink-600 hover:bg-pink-500 text-white font-bold text-xl px-12 py-4 rounded-2xl shadow-lg shadow-pink-500/40 transition-all"
             >
-              💾 Guardar Quiniela
+              💾 Guardar Quiniela J{numeroJornada}
             </button>
           )}
 
