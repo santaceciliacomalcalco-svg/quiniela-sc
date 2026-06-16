@@ -8,6 +8,7 @@ const numeroTarjeta = "4152314480160061";
 const jornadas = [
   {
     id: "jornada-1",
+    numero: "1",
     nombre: "Jornada 1",
     flyer: "/jornada-1.jpg",
     estado: "cerrada",
@@ -16,6 +17,7 @@ const jornadas = [
   },
   {
     id: "jornada-2",
+    numero: "2",
     nombre: "Jornada 2",
     flyer: "/jornada-2.jpg",
     estado: "venta",
@@ -24,6 +26,7 @@ const jornadas = [
   },
   {
     id: "jornada-3",
+    numero: "3",
     nombre: "Jornada 3",
     flyer: "/jornada-3.jpg",
     estado: "venta",
@@ -38,6 +41,7 @@ function estilosEstado(estado: string) {
       card: "border-gray-600 bg-gray-950/80 shadow-gray-700/20",
       badge: "bg-gray-700 text-gray-200 border-gray-400",
       boton: "bg-gray-800 text-gray-500 cursor-not-allowed",
+      activo: false,
     };
   }
 
@@ -45,6 +49,7 @@ function estilosEstado(estado: string) {
     card: "border-green-500 bg-green-950/20 shadow-green-500/20",
     badge: "bg-green-600 text-white border-green-300",
     boton: "bg-pink-600 hover:bg-pink-500 text-white",
+    activo: true,
   };
 }
 
@@ -59,37 +64,38 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-black text-white px-6 py-4">
+    <main className="min-h-screen bg-black text-white px-4 py-4">
       <section className="max-w-4xl mx-auto">
         <div className="text-center mb-6">
-          <h1 className="text-5xl font-black mb-4">
-            QUINIELA <span className="text-pink-500">SC</span> 🏆
+          <h1 className="text-4xl md:text-5xl font-black mb-4 flex items-center justify-center gap-3 whitespace-nowrap">
+            <span>
+              QUINIELA <span className="text-pink-500">SC</span>
+            </span>
+            <span>🏆</span>
           </h1>
 
-          <p className="text-xl text-gray-400">
+          <p className="text-lg md:text-xl text-gray-400">
             Elige la jornada para meter tu quiniela, ver tabla o revisar registros.
           </p>
 
-          <div className="flex items-center justify-center gap-1 mt-2">
-            <p className="text-pink-400 text-4xl font-black">Mundial 2026</p>
-            <img
-              src="/fifa-logo.png"
-              alt="FIFA"
-              className="h-16 object-contain"
-            />
+          <div className="flex items-center justify-center gap-2 mt-2">
+            <p className="text-pink-400 text-3xl md:text-4xl font-black">
+              Mundial 2026
+            </p>
+            <img src="/fifa-logo.png" alt="FIFA" className="h-12 md:h-16 object-contain" />
           </div>
         </div>
 
-        <div className="mb-5 flex flex-col items-center">
+        <div className="mb-6 flex flex-col items-center">
           <button
             onClick={() => setMostrarPago(!mostrarPago)}
-            className="bg-yellow-500 hover:bg-yellow-400 text-black font-black text-lg rounded-3xl px-8 py-3 transition-all shadow-lg shadow-yellow-500/10"
+            className="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-black text-base md:text-lg rounded-3xl px-6 py-4 transition-all shadow-lg shadow-yellow-500/10"
           >
-            💳 Datos de pago y activación de quiniela
+            💳 Datos de pago y activación
           </button>
 
           {mostrarPago && (
-            <div className="w-full border border-yellow-400 bg-yellow-500/10 rounded-3xl p-6 mt-4 text-center">
+            <div className="w-full border border-yellow-400 bg-yellow-500/10 rounded-3xl p-5 mt-4 text-center">
               <h2 className="text-3xl font-black text-yellow-300 mb-4">
                 💳 Datos de pago
               </h2>
@@ -113,7 +119,7 @@ export default function Home() {
                   </p>
 
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                    <p className="text-2xl md:text-3xl font-black tracking-widest">
+                    <p className="text-xl md:text-3xl font-black tracking-widest">
                       4152 3144 8016 0061
                     </p>
 
@@ -175,7 +181,9 @@ export default function Home() {
           )}
         </div>
 
-        <div className="grid gap-6">
+        <h2 className="text-3xl font-black mb-4">🏆 Jornadas</h2>
+
+        <div className="grid gap-4">
           {jornadas.map((jornada) => {
             const estilos = estilosEstado(jornada.estado);
             const cerrada = jornada.estado === "cerrada";
@@ -183,68 +191,72 @@ export default function Home() {
             return (
               <div
                 key={jornada.id}
-                className={`border rounded-3xl p-6 shadow-xl ${estilos.card}`}
+                className={`border rounded-3xl p-5 shadow-xl ${estilos.card}`}
               >
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-5">
-                  <h2 className="text-4xl font-black flex items-center justify-center md:justify-start gap-2">
-                    <img
-                      src="/fifa-logo.png"
-                      alt="FIFA"
-                      className="h-14 object-contain"
-                    />
-                    <span>{jornada.nombre}</span>
-                    <span>🏆</span>
-                  </h2>
+                <div className="flex items-center justify-between gap-4 mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-2xl bg-pink-600 flex items-center justify-center font-black text-2xl">
+                      {jornada.numero}
+                    </div>
 
-                  <span
-                    className={`border rounded-full px-5 py-2 text-sm font-black text-center ${estilos.badge}`}
-                  >
-                    {jornada.etiqueta}
-                  </span>
+                    <div>
+                      <h3 className="text-3xl font-black leading-none">
+                        {jornada.nombre}
+                      </h3>
+
+                      <p className="text-yellow-300 font-bold text-sm mt-2">
+                        ⏰ {jornada.cierre}
+                      </p>
+                    </div>
+                  </div>
+
+                  <span className="text-3xl">🏆</span>
                 </div>
 
-                <p className="text-center md:text-left text-yellow-300 font-bold mb-5">
-                  ⏰ {jornada.cierre}
-                </p>
+                <div
+                  className={`border rounded-full px-5 py-3 text-sm font-black text-center mb-4 ${estilos.badge}`}
+                >
+                  {jornada.etiqueta}
+                </div>
 
-                <div className="grid md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-3 gap-3 mb-3">
                   <Link
                     href={jornada.flyer}
                     target="_blank"
-                    className="border border-blue-500 text-blue-300 text-center rounded-2xl py-4 font-black text-lg hover:bg-blue-600 hover:text-white transition-all"
+                    className="border border-blue-500 text-blue-300 text-center rounded-xl py-3 font-bold hover:bg-blue-600 hover:text-white transition-all"
                   >
-                    📄 Ver Flyer
+                    📄 Flyer
                   </Link>
-
-                  {cerrada ? (
-                    <div
-                      className={`text-center rounded-2xl py-4 font-black text-lg ${estilos.boton}`}
-                    >
-                      🔒 Registro Cerrado
-                    </div>
-                  ) : (
-                    <Link
-                      href={`/mi-quiniela?jornada=${jornada.id}`}
-                      className={`text-center rounded-2xl py-4 font-black text-lg transition-all ${estilos.boton}`}
-                    >
-                      ⚽ Meter Quiniela
-                    </Link>
-                  )}
 
                   <Link
                     href={`/tabla?jornada=${jornada.id}`}
-                    className="border border-yellow-400 text-yellow-300 text-center rounded-2xl py-4 font-black text-lg hover:bg-yellow-500 hover:text-black transition-all"
+                    className="border border-yellow-400 text-yellow-300 text-center rounded-xl py-3 font-bold hover:bg-yellow-500 hover:text-black transition-all"
                   >
-                    🏆 Ver Tabla
+                    🏆 Tabla
                   </Link>
 
                   <Link
                     href={`/quinielas?jornada=${jornada.id}`}
-                    className="border border-pink-500 text-center rounded-2xl py-4 font-black text-lg hover:bg-pink-500 transition-all"
+                    className="border border-pink-500 text-center rounded-xl py-3 font-bold hover:bg-pink-500 transition-all"
                   >
-                    👥 Ver Quinielas
+                    👥 Quin
                   </Link>
                 </div>
+
+                {cerrada ? (
+                  <div
+                    className={`text-center rounded-xl py-3 font-black ${estilos.boton}`}
+                  >
+                    🔒 Registro Cerrado
+                  </div>
+                ) : (
+                  <Link
+                    href={`/mi-quiniela?jornada=${jornada.id}`}
+                    className={`block text-center rounded-xl py-3 font-black transition-all ${estilos.boton}`}
+                  >
+                    ⚽ Meter Quiniela
+                  </Link>
+                )}
               </div>
             );
           })}
