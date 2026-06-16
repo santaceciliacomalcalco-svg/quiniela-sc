@@ -12,7 +12,7 @@ const jornadas = [
     nombre: "Jornada 1",
     flyer: "/jornada-1.jpg",
     estado: "cerrada",
-    etiqueta: "🔒 En curso",
+    etiqueta: "En curso",
     cierre: "Cerró: 11 de junio · 1:00 PM",
   },
   {
@@ -21,7 +21,7 @@ const jornadas = [
     nombre: "Jornada 2",
     flyer: "/jornada-2.jpg",
     estado: "venta",
-    etiqueta: "🟢 En venta",
+    etiqueta: "En venta",
     cierre: "Cierra: 18 de junio · 10:00 AM",
   },
   {
@@ -30,7 +30,7 @@ const jornadas = [
     nombre: "Jornada 3",
     flyer: "/jornada-3.jpg",
     estado: "venta",
-    etiqueta: "🟢 En venta",
+    etiqueta: "En venta",
     cierre: "Cierra: 24 de junio · 1:00 PM",
   },
 ];
@@ -39,7 +39,8 @@ function estilosEstado(estado: string) {
   if (estado === "cerrada") {
     return {
       card: "border-gray-600 bg-gray-950/80 shadow-gray-700/20",
-      badge: "bg-gray-700 text-gray-200 border-gray-400",
+      punto: "bg-yellow-400",
+      textoEstado: "text-yellow-300",
       boton: "bg-gray-800 text-gray-500 cursor-not-allowed",
       activo: false,
     };
@@ -47,7 +48,8 @@ function estilosEstado(estado: string) {
 
   return {
     card: "border-green-500 bg-green-950/20 shadow-green-500/20",
-    badge: "bg-green-600 text-white border-green-300",
+    punto: "bg-green-500",
+    textoEstado: "text-green-400",
     boton: "bg-pink-600 hover:bg-pink-500 text-white",
     activo: true,
   };
@@ -82,7 +84,11 @@ export default function Home() {
             <p className="text-pink-400 text-3xl md:text-4xl font-black">
               Mundial 2026
             </p>
-            <img src="/fifa-logo.png" alt="FIFA" className="h-12 md:h-16 object-contain" />
+            <img
+              src="/fifa-logo.png"
+              alt="FIFA"
+              className="h-12 md:h-16 object-contain"
+            />
           </div>
         </div>
 
@@ -193,7 +199,7 @@ export default function Home() {
                 key={jornada.id}
                 className={`border rounded-3xl p-5 shadow-xl ${estilos.card}`}
               >
-                <div className="flex items-center justify-between gap-4 mb-4">
+                <div className="flex items-center justify-between gap-4 mb-3">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-2xl bg-pink-600 flex items-center justify-center font-black text-2xl">
                       {jornada.numero}
@@ -213,10 +219,14 @@ export default function Home() {
                   <span className="text-3xl">🏆</span>
                 </div>
 
-                <div
-                  className={`border rounded-full px-5 py-3 text-sm font-black text-center mb-4 ${estilos.badge}`}
-                >
-                  {jornada.etiqueta}
+                <div className="flex items-center gap-2 mb-4">
+                  <span
+                    className={`w-3 h-3 rounded-full ${estilos.punto}`}
+                  ></span>
+
+                  <span className={`font-black text-base ${estilos.textoEstado}`}>
+                    {jornada.etiqueta}
+                  </span>
                 </div>
 
                 <div className="grid grid-cols-3 gap-3 mb-3">
