@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { db } from "../lib/firebase";
+import { getJornadaId } from "../lib/jornada";
 import { collection, getDocs } from "firebase/firestore";
+import { useSearchParams } from "next/navigation";
 
 type Participante = {
   id: string;
@@ -15,7 +17,10 @@ type Quiniela = {
   selecciones: Record<number, string>;
 };
 
-export default function Quinielas() {
+function QuinielasContent() {
+  const searchParams = useSearchParams();
+  const jornadaId = getJornadaId(searchParams.get("jornada"));
+
   const [participantes, setParticipantes] = useState<Participante[]>([]);
   const [quinielas, setQuinielas] = useState<Record<string, Quiniela>>({});
   const [abierta, setAbierta] = useState<string | null>(null);
@@ -49,13 +54,23 @@ export default function Quinielas() {
   ];
 
   async function cargarDatos() {
-    const participantesSnapshot = await getDocs(collection(db, "participantes"));
-    const quinielasSnapshot = await getDocs(collection(db, "quinielas"));
+    setCargando(true);
+    setAbierta(null);
+
+    const participantesSnapshot = await getDocs(
+      collection(db, "jornadas", jornadaId, "participantes")
+    );
+
+    const quinielasSnapshot = await getDocs(
+      collection(db, "jornadas", jornadaId, "quinielas")
+    );
 
     const listaParticipantes = participantesSnapshot.docs.map((documento) => ({
       id: documento.id,
       nombre: documento.data().nombre,
     })) as Participante[];
+
+    listaParticipantes.sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
 
     const mapaQuinielas: Record<string, Quiniela> = {};
 
@@ -76,7 +91,7 @@ export default function Quinielas() {
 
   useEffect(() => {
     cargarDatos();
-  }, []);
+  }, [jornadaId]);
 
   function mostrarSeleccion(
     partido: { local: string; visitante: string },
@@ -105,12 +120,17 @@ export default function Quinielas() {
       <div className="max-w-7xl mx-auto">
         <h1 className="text-5xl font-black mb-2">👥 Quinielas Registradas</h1>
 
-        <p className="text-yellow-400 mb-8">
-          Revisa las quinielas guardadas de la semana.
+        <p className="text-pink-400 font-bold mb-2">
+          Jornada activa: {jornadaId}
         </p>
+
+        <p className="text-yellow-400 mb-4">
+          Revisa las quinielas guardadas de esta jornada.
+        </p>
+
         <p className="text-pink-400 font-bold mb-6">
-  Total de participantes: {participantes.length}
-</p>
+          Total de participantes: {participantes.length}
+        </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {participantes.map((participante) => {
@@ -135,7 +155,9 @@ export default function Quinielas() {
                   </p>
 
                   <button
-                    onClick={() => setAbierta(estaAbierta ? null : participante.id)}
+                    onClick={() =>
+                      setAbierta(estaAbierta ? null : participante.id)
+                    }
                     className="mt-4 w-full bg-pink-600 hover:bg-pink-500 py-3 rounded-xl font-bold"
                   >
                     {estaAbierta ? "Ocultar Quiniela" : "Ver Quiniela"}
@@ -175,11 +197,25 @@ export default function Quinielas() {
         {participantes.length === 0 && (
           <div className="border border-gray-700 rounded-3xl p-8 text-center">
             <p className="text-gray-400">
-              Todavía no hay participantes registrados en Firebase.
+              Todavía no hay participantes registrados en esta jornada.
             </p>
           </div>
         )}
       </div>
     </main>
+  );
+}
+
+export default function Quinielas() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-black text-pink-400 flex items-center justify-center font-bold">
+          Cargando quinielas...
+        </main>
+      }
+    >
+      <QuinielasContent />
+    </Suspense>
   );
 }

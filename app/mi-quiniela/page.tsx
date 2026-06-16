@@ -1,17 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { db } from "../lib/firebase";
 import { getJornadaId } from "../lib/jornada";
 import { collection, doc, getDocs, getDoc, setDoc } from "firebase/firestore";
+import { useSearchParams } from "next/navigation";
 
 type Participante = {
   id: string;
   nombre: string;
 };
 
-export default function MiQuiniela() {
-  const jornadaId = getJornadaId();
+function MiQuinielaContent() {
+  const searchParams = useSearchParams();
+  const jornadaId = getJornadaId(searchParams.get("jornada"));
 
   const partidos = [
     { id: 1, local: "México", visitante: "Sudáfrica" },
@@ -48,6 +50,12 @@ export default function MiQuiniela() {
   const [bloqueada, setBloqueada] = useState(false);
 
   async function cargarParticipantes() {
+    setCargando(true);
+    setParticipanteId("");
+    setSelecciones({});
+    setBloqueada(false);
+    setMensaje("");
+
     const snapshot = await getDocs(
       collection(db, "jornadas", jornadaId, "participantes")
     );
@@ -61,7 +69,7 @@ export default function MiQuiniela() {
 
     setParticipantes(lista);
 
-    if (lista.length > 0 && !participanteId) {
+    if (lista.length > 0) {
       setParticipanteId(lista[0].id);
     }
 
@@ -87,13 +95,13 @@ export default function MiQuiniela() {
 
   useEffect(() => {
     cargarParticipantes();
-  }, []);
+  }, [jornadaId]);
 
   useEffect(() => {
     if (participanteId) {
       cargarQuiniela(participanteId);
     }
-  }, [participanteId]);
+  }, [participanteId, jornadaId]);
 
   function seleccionar(partidoId: number, valor: string) {
     if (bloqueada) {
@@ -171,7 +179,7 @@ export default function MiQuiniela() {
         </h1>
 
         <p className="text-pink-400 text-xl font-bold mb-2">
-          🔍 Busca tu nombre y rellena tu quiniela
+          Jornada activa: {jornadaId}
         </p>
 
         <p className="text-gray-400 mb-6">
@@ -180,8 +188,7 @@ export default function MiQuiniela() {
 
         {bloqueada && (
           <div className="bg-yellow-500/10 border border-yellow-400 text-yellow-300 rounded-2xl p-4 mb-6 font-bold">
-            🔒 Esta quiniela ya está guardada. Puedes verla, pero ya no
-            modificarla.
+            🔒 Esta quiniela ya está guardada. Puedes verla, pero ya no modificarla.
           </div>
         )}
 
@@ -198,7 +205,7 @@ export default function MiQuiniela() {
             {cargando && <option value="">Cargando...</option>}
 
             {!cargando && participantes.length === 0 && (
-              <option value="">No hay participantes</option>
+              <option value="">No hay participantes en esta jornada</option>
             )}
 
             {participantes.map((p) => (
@@ -236,10 +243,7 @@ export default function MiQuiniela() {
                     selecciones[partido.id] === "local"
                   )}`}
                 >
-                  {textoBoton(
-                    partido.local,
-                    selecciones[partido.id] === "local"
-                  )}
+                  {textoBoton(partido.local, selecciones[partido.id] === "local")}
                 </button>
 
                 <button
@@ -261,10 +265,7 @@ export default function MiQuiniela() {
                     selecciones[partido.id] === "visita"
                   )}`}
                 >
-                  {textoBoton(
-                    partido.visitante,
-                    selecciones[partido.id] === "visita"
-                  )}
+                  {textoBoton(partido.visitante, selecciones[partido.id] === "visita")}
                 </button>
               </div>
             </div>
@@ -272,7 +273,7 @@ export default function MiQuiniela() {
         </div>
 
         <div className="flex flex-col items-center mt-10 gap-4">
-          {!bloqueada && (
+          {!bloqueada && participantes.length > 0 && (
             <button
               onClick={guardarQuiniela}
               className="bg-pink-600 hover:bg-pink-500 text-white font-bold text-xl px-12 py-4 rounded-2xl shadow-lg shadow-pink-500/40 transition-all"
@@ -289,5 +290,19 @@ export default function MiQuiniela() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function MiQuiniela() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-black text-pink-400 flex items-center justify-center font-bold">
+          Cargando quiniela...
+        </main>
+      }
+    >
+      <MiQuinielaContent />
+    </Suspense>
   );
 }

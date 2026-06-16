@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
-import { getJornadaId } from "../lib/jornada";
+import { getJornadaId, JORNADAS_DISPONIBLES } from "../lib/jornada";
+import { useRouter, useSearchParams } from "next/navigation";
 
 type Participante = {
   id: string;
@@ -21,8 +22,10 @@ type Resultado = {
   resultados?: Record<string, string>;
 };
 
-export default function TablaPage() {
-  const jornadaId = getJornadaId();
+function TablaContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const jornadaId = getJornadaId(searchParams.get("jornada"));
 
   const [participantes, setParticipantes] = useState<Participante[]>([]);
   const [quinielas, setQuinielas] = useState<Quiniela[]>([]);
@@ -32,6 +35,8 @@ export default function TablaPage() {
   useEffect(() => {
     async function cargarDatos() {
       try {
+        setLoading(true);
+
         const participantesSnap = await getDocs(
           collection(db, "jornadas", jornadaId, "participantes")
         );
@@ -65,6 +70,8 @@ export default function TablaPage() {
 
         if (resultadosSnap.exists()) {
           setResultados(resultadosSnap.data() as Resultado);
+        } else {
+          setResultados({});
         }
       } catch (error) {
         console.error("Error cargando tabla:", error);
@@ -104,6 +111,10 @@ export default function TablaPage() {
       .sort((a, b) => b.puntos - a.puntos);
   }, [participantes, quinielas, resultados]);
 
+  function cambiarJornada(nuevaJornada: string) {
+    router.push(`/tabla?jornada=${nuevaJornada}`);
+  }
+
   function medalla(index: number) {
     if (index === 0) return "🥇";
     if (index === 1) return "🥈";
@@ -117,7 +128,7 @@ export default function TablaPage() {
     puntos: number
   ) {
     const mensaje = `🏆 Voy en el lugar #${posicion} de la Quiniela SC con ${puntos} puntos ⚽\n\nCheca la tabla aquí:`;
-    const url = "https://quiniela-sc.vercel.app/tabla";
+    const url = `https://quiniela-sc.vercel.app/tabla?jornada=${jornadaId}`;
 
     if (navigator.share) {
       try {
@@ -151,7 +162,24 @@ export default function TablaPage() {
           <p className="text-gray-400">
             Ranking oficial de la Quiniela Santa Cecilia
           </p>
-          <p className="text-pink-400 font-bold mt-2">
+
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
+            {JORNADAS_DISPONIBLES.map((jornada) => (
+              <button
+                key={jornada.id}
+                onClick={() => cambiarJornada(jornada.id)}
+                className={`px-5 py-3 rounded-xl font-black border transition-all ${
+                  jornadaId === jornada.id
+                    ? "bg-pink-600 text-white border-pink-400 shadow-lg shadow-pink-500/40"
+                    : "bg-black text-pink-400 border-pink-500 hover:bg-pink-600 hover:text-white"
+                }`}
+              >
+                {jornada.nombre}
+              </button>
+            ))}
+          </div>
+
+          <p className="text-pink-400 font-bold mt-4">
             Jornada activa: {jornadaId}
           </p>
         </div>
@@ -215,5 +243,13 @@ export default function TablaPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function TablaPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-black text-pink-400 flex items-center justify-center font-bold">Cargando...</div>}>
+      <TablaContent />
+    </Suspense>
   );
 }
