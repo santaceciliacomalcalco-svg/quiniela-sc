@@ -39,18 +39,16 @@ function estilosEstado(estado: string) {
   if (estado === "cerrada") {
     return {
       card: "border-yellow-400 bg-yellow-950/10 shadow-yellow-500/20",
-      estadoCaja: "border-yellow-400/60 bg-yellow-500/10 text-yellow-300",
+      textoEstado: "text-yellow-300",
       boton: "bg-gray-800 text-gray-500 cursor-not-allowed",
-      activo: false,
       iconoEstado: "🔒",
     };
   }
 
   return {
     card: "border-green-500 bg-green-950/20 shadow-green-500/20",
-    estadoCaja: "border-green-400/60 bg-green-500/10 text-green-400",
+    textoEstado: "text-green-400",
     boton: "bg-pink-600 hover:bg-pink-500 text-white",
-    activo: true,
     iconoEstado: "🟢",
   };
 }
@@ -84,11 +82,11 @@ export default function Home() {
             <p className="text-pink-400 text-3xl md:text-4xl font-black">
               Mundial 2026
             </p>
-           <img
-  src="/fifa-logo.png"
-  alt="FIFA"
-  className="h-24 w-24 md:h-32 md:w-32 object-contain"
-/>
+            <img
+              src="/fifa-logo.png"
+              alt="FIFA"
+              className="h-24 w-24 md:h-32 md:w-32 object-contain"
+            />
           </div>
         </div>
 
@@ -217,15 +215,20 @@ export default function Home() {
                   <img
                     src="/fifa-logo.png"
                     alt="FIFA"
-                    className="h-14 w-14 object-contain"
+                    className="h-24 w-24 object-contain"
                   />
                 </div>
 
-                <div
-                  className={`inline-flex items-center gap-2 border rounded-2xl px-4 py-2 mb-4 font-black ${estilos.estadoCaja}`}
-                >
-                  <span>{estilos.iconoEstado}</span>
-                  <span>{jornada.etiqueta}</span>
+                <div className="flex justify-center mb-5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">{estilos.iconoEstado}</span>
+
+                    <span
+                      className={`text-xl font-black tracking-wide ${estilos.textoEstado}`}
+                    >
+                      {jornada.etiqueta}
+                    </span>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-3 gap-3 mb-3">
