@@ -158,18 +158,19 @@ function TablaContent() {
   return (
     <main className="min-h-screen bg-black text-white p-6">
       <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-8">
+        <div className="text-center mb-6">
           <h1 className="text-5xl font-black mb-2">🏆 Tabla General</h1>
+
           <p className="text-gray-400">
             Ranking oficial de la Quiniela Santa Cecilia
           </p>
 
-          <div className="mt-6 flex flex-wrap justify-center gap-3">
+          <div className="mt-5 grid grid-cols-3 gap-2 max-w-md mx-auto">
             {JORNADAS_DISPONIBLES.map((jornada) => (
               <button
                 key={jornada.id}
                 onClick={() => cambiarJornada(jornada.id)}
-                className={`px-5 py-3 rounded-xl font-black border transition-all ${
+                className={`px-2 py-3 rounded-xl font-black border text-sm transition-all ${
                   jornadaId === jornada.id
                     ? "bg-pink-600 text-white border-pink-400 shadow-lg shadow-pink-500/40"
                     : "bg-black text-pink-400 border-pink-500 hover:bg-pink-600 hover:text-white"
@@ -183,13 +184,6 @@ function TablaContent() {
           <p className="text-pink-400 font-bold mt-4">
             Jornada activa: {jornadaId}
           </p>
-
-          <Link
-            href={`/ranking-flyer?jornada=${jornadaId}`}
-            className="inline-block mt-4 bg-pink-600 hover:bg-pink-500 text-white font-black rounded-2xl px-6 py-3 shadow-lg shadow-pink-500/30 transition-all"
-          >
-            🎨 Generar flyer del ranking
-          </Link>
         </div>
 
         <div className="border border-pink-500 rounded-3xl overflow-hidden shadow-2xl shadow-pink-500/20">
@@ -217,7 +211,9 @@ function TablaContent() {
               </div>
 
               <div className="p-4">
-                <p className="font-black text-base md:text-lg">{item.nombre}</p>
+                <p className="font-black text-base md:text-lg">
+                  {item.nombre}
+                </p>
 
                 {index === 0 && (
                   <p className="text-yellow-400 text-sm font-bold">
@@ -248,6 +244,15 @@ function TablaContent() {
               No hay participantes en esta jornada.
             </div>
           )}
+        </div>
+
+        <div className="flex justify-center mt-8">
+          <Link
+            href={`/ranking-flyer?jornada=${jornadaId}`}
+            className="inline-block bg-pink-600 hover:bg-pink-500 text-white font-black rounded-2xl px-6 py-3 shadow-lg shadow-pink-500/30 transition-all"
+          >
+            🎨 Generar flyer del ranking
+          </Link>
         </div>
       </div>
     </main>
