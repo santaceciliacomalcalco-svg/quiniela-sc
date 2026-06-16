@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { db, auth } from "../lib/firebase";
 import { getJornadaId } from "../lib/jornada";
 import { getPartidos } from "../lib/partidos";
 import { onAuthStateChanged } from "firebase/auth";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   addDoc,
   collection,
@@ -22,15 +22,32 @@ type Participante = {
   pagado?: boolean;
 };
 
-export default function Admin() {
+type EstadoJornada = "venta" | "curso" | "finalizada" | "proximamente";
+
+function AdminContent() {
   const router = useRouter();
-  const jornadaId = getJornadaId();
+  const searchParams = useSearchParams();
+
+  const jornadaParam = getJornadaId(searchParams.get("jornada"));
+  const jornadaId = jornadaParam.startsWith("jornada-")
+    ? jornadaParam
+    : `jornada-${jornadaParam}`;
+
+  const numeroJornada = jornadaId.replace("jornada-", "");
   const partidos = getPartidos(jornadaId);
 
   const [nombre, setNombre] = useState("");
   const [participantes, setParticipantes] = useState<Participante[]>([]);
   const [resultados, setResultados] = useState<Record<number, string>>({});
   const [mensaje, setMensaje] = useState("");
+
+  const [estadosJornadas, setEstadosJornadas] = useState<
+    Record<string, EstadoJornada>
+  >({
+    "jornada-1": "curso",
+    "jornada-2": "venta",
+    "jornada-3": "venta",
+  });
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -57,18 +74,6 @@ export default function Admin() {
     setParticipantes(lista);
   }
 
-  async function cambiarPagado(id: string, pagadoActual: boolean) {
-    await setDoc(
-      doc(db, "jornadas", jornadaId, "participantes", id),
-      {
-        pagado: !pagadoActual,
-      },
-      { merge: true }
-    );
-
-    cargarParticipantes();
-  }
-
   async function cargarResultados() {
     const referencia = doc(
       db,
@@ -87,9 +92,25 @@ export default function Admin() {
     }
   }
 
+  async function cargarEstadosJornadas() {
+    const referencia = doc(db, "configuracion", "jornadas");
+    const documento = await getDoc(referencia);
+
+    if (documento.exists()) {
+      const data = documento.data();
+
+      setEstadosJornadas({
+        "jornada-1": data["jornada-1"] || "curso",
+        "jornada-2": data["jornada-2"] || "venta",
+        "jornada-3": data["jornada-3"] || "venta",
+      });
+    }
+  }
+
   useEffect(() => {
     cargarParticipantes();
     cargarResultados();
+    cargarEstadosJornadas();
   }, [jornadaId]);
 
   async function guardarParticipante() {
@@ -117,6 +138,16 @@ export default function Admin() {
     cargarParticipantes();
   }
 
+  async function cambiarPagado(id: string, pagadoActual: boolean) {
+    await setDoc(
+      doc(db, "jornadas", jornadaId, "participantes", id),
+      { pagado: !pagadoActual },
+      { merge: true }
+    );
+
+    cargarParticipantes();
+  }
+
   async function guardarResultados() {
     await setDoc(doc(db, "jornadas", jornadaId, "configuracion", "resultados"), {
       resultados,
@@ -134,6 +165,26 @@ export default function Admin() {
 
     setResultados({});
     setMensaje("🔄 Resultados reiniciados en Firebase.");
+  }
+
+  async function guardarEstadosJornadas() {
+    await setDoc(
+      doc(db, "configuracion", "jornadas"),
+      {
+        ...estadosJornadas,
+        actualizadoEn: new Date(),
+      },
+      { merge: true }
+    );
+
+    setMensaje("✅ Estados de jornadas guardados.");
+  }
+
+  function cambiarEstadoJornada(jornada: string, estado: EstadoJornada) {
+    setEstadosJornadas({
+      ...estadosJornadas,
+      [jornada]: estado,
+    });
   }
 
   function botonClase(
@@ -161,18 +212,73 @@ export default function Admin() {
     return seleccionado ? `✓ ${texto}` : texto;
   }
 
+  function etiquetaEstado(estado: EstadoJornada) {
+    if (estado === "venta") return "🟢 En venta";
+    if (estado === "curso") return "🔒 En curso";
+    if (estado === "finalizada") return "✅ Finalizada";
+    return "⏳ Próximamente";
+  }
+
   return (
     <main className="min-h-screen bg-black text-white p-6">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-5xl font-black mb-2">🛠️ Panel Admin</h1>
 
         <p className="text-pink-400 font-bold mb-2">
-          Jornada activa: {jornadaId}
+          Jornada activa: {numeroJornada}
         </p>
 
         <p className="text-gray-400 mb-8">
-          Agrega participantes y captura resultados reales.
+          Agrega participantes, captura resultados y controla el estado de cada jornada.
         </p>
+
+        <section className="border border-cyan-500 rounded-3xl p-6 mb-10 bg-cyan-950/10">
+          <h2 className="text-3xl font-black mb-4">⚙️ Estados de Jornadas</h2>
+
+          <p className="text-gray-400 mb-6">
+            Cambia desde aquí si una jornada está en venta, en curso, finalizada o próximamente.
+          </p>
+
+          <div className="grid md:grid-cols-3 gap-4">
+            {["jornada-1", "jornada-2", "jornada-3"].map((jornada) => (
+              <div
+                key={jornada}
+                className="border border-gray-700 rounded-2xl p-4 bg-gray-950"
+              >
+                <h3 className="font-black text-xl mb-3">
+                  {jornada.replace("jornada-", "Jornada ")}
+                </h3>
+
+                <p className="text-yellow-300 font-bold mb-3">
+                  Actual: {etiquetaEstado(estadosJornadas[jornada])}
+                </p>
+
+                <select
+                  value={estadosJornadas[jornada]}
+                  onChange={(e) =>
+                    cambiarEstadoJornada(
+                      jornada,
+                      e.target.value as EstadoJornada
+                    )
+                  }
+                  className="w-full bg-black border border-gray-700 rounded-xl p-3 text-white font-bold"
+                >
+                  <option value="venta">🟢 En venta</option>
+                  <option value="curso">🔒 En curso</option>
+                  <option value="finalizada">✅ Finalizada</option>
+                  <option value="proximamente">⏳ Próximamente</option>
+                </select>
+              </div>
+            ))}
+          </div>
+
+          <button
+            onClick={guardarEstadosJornadas}
+            className="mt-6 bg-cyan-600 hover:bg-cyan-500 px-8 py-4 rounded-2xl font-black"
+          >
+            💾 Guardar Estados de Jornadas
+          </button>
+        </section>
 
         <section className="border border-pink-500 rounded-3xl p-6 mb-10">
           <h2 className="text-3xl font-black mb-4">👥 Participantes</h2>
@@ -345,5 +451,19 @@ export default function Admin() {
         </section>
       </div>
     </main>
+  );
+}
+
+export default function Admin() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-black text-pink-400 flex items-center justify-center font-bold">
+          Cargando admin...
+        </main>
+      }
+    >
+      <AdminContent />
+    </Suspense>
   );
 }
