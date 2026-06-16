@@ -38,20 +38,20 @@ const jornadas = [
 function estilosEstado(estado: string) {
   if (estado === "cerrada") {
     return {
-      card: "border-gray-600 bg-gray-950/80 shadow-gray-700/20",
-      punto: "bg-yellow-400",
-      textoEstado: "text-yellow-300",
+      card: "border-yellow-400 bg-yellow-950/10 shadow-yellow-500/20",
+      estadoCaja: "border-yellow-400/60 bg-yellow-500/10 text-yellow-300",
       boton: "bg-gray-800 text-gray-500 cursor-not-allowed",
       activo: false,
+      iconoEstado: "🔒",
     };
   }
 
   return {
     card: "border-green-500 bg-green-950/20 shadow-green-500/20",
-    punto: "bg-green-500",
-    textoEstado: "text-green-400",
+    estadoCaja: "border-green-400/60 bg-green-500/10 text-green-400",
     boton: "bg-pink-600 hover:bg-pink-500 text-white",
     activo: true,
+    iconoEstado: "🟢",
   };
 }
 
@@ -187,8 +187,6 @@ export default function Home() {
           )}
         </div>
 
-        <h2 className="text-3xl font-black mb-4">🏆 Jornadas</h2>
-
         <div className="grid gap-4">
           {jornadas.map((jornada) => {
             const estilos = estilosEstado(jornada.estado);
@@ -199,7 +197,7 @@ export default function Home() {
                 key={jornada.id}
                 className={`border rounded-3xl p-5 shadow-xl ${estilos.card}`}
               >
-                <div className="flex items-center justify-between gap-4 mb-3">
+                <div className="flex items-center justify-between gap-4 mb-4">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-2xl bg-pink-600 flex items-center justify-center font-black text-2xl">
                       {jornada.numero}
@@ -216,17 +214,18 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <span className="text-3xl">🏆</span>
+                  <img
+                    src="/fifa-logo.png"
+                    alt="FIFA"
+                    className="h-14 w-14 object-contain"
+                  />
                 </div>
 
-                <div className="flex items-center gap-2 mb-4">
-                  <span
-                    className={`w-3 h-3 rounded-full ${estilos.punto}`}
-                  ></span>
-
-                  <span className={`font-black text-base ${estilos.textoEstado}`}>
-                    {jornada.etiqueta}
-                  </span>
+                <div
+                  className={`inline-flex items-center gap-2 border rounded-2xl px-4 py-2 mb-4 font-black ${estilos.estadoCaja}`}
+                >
+                  <span>{estilos.iconoEstado}</span>
+                  <span>{jornada.etiqueta}</span>
                 </div>
 
                 <div className="grid grid-cols-3 gap-3 mb-3">
