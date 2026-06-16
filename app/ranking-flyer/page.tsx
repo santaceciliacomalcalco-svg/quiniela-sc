@@ -189,7 +189,12 @@ function RankingFlyerContent() {
         });
       } else {
         descargarBlob(blob);
-        alert("Si no se descargó, mantén presionada la imagen generada y guárdala.");
+    setTimeout(() => {
+  document.getElementById("imagen-generada")?.scrollIntoView({
+    behavior: "smooth",
+    block: "center",
+  });
+}, 300);
       }
     } catch (error) {
       console.error("Error compartiendo flyer:", error);
@@ -199,7 +204,12 @@ function RankingFlyerContent() {
         descargarBlob(blob);
       }
 
-      alert("No se pudo compartir directo. Abajo aparecerá la imagen para guardarla manteniendo presionado.");
+    setTimeout(() => {
+  document.getElementById("imagen-generada")?.scrollIntoView({
+    behavior: "smooth",
+    block: "center",
+  });
+}, 300);
     } finally {
       setGenerando(false);
     }
@@ -216,7 +226,12 @@ function RankingFlyerContent() {
       }
     } catch (error) {
       console.error("Error descargando flyer:", error);
-      alert("No se pudo descargar. Mantén presionada la imagen generada para guardarla.");
+    setTimeout(() => {
+  document.getElementById("imagen-generada")?.scrollIntoView({
+    behavior: "smooth",
+    block: "center",
+  });
+}, 300);
     } finally {
       setGenerando(false);
     }
@@ -357,8 +372,11 @@ function RankingFlyerContent() {
         </div>
       </div>
 
-      {imagenGenerada && (
-        <div className="print:hidden mt-8 w-full max-w-[430px] border border-green-500 rounded-3xl p-4 bg-green-500/10">
+     {imagenGenerada && (
+  <div
+    id="imagen-generada"
+    className="print:hidden mt-8 w-full max-w-[430px] border border-green-500 rounded-3xl p-4 bg-green-500/10"
+  >
           <p className="text-green-400 font-black text-center mb-3">
             ✅ Imagen generada. Mantén presionada para guardar o compartir.
           </p>
