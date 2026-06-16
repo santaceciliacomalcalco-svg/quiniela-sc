@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 import { db } from "../lib/firebase";
 import { getJornadaId } from "../lib/jornada";
@@ -220,13 +221,44 @@ function QuinielasContent() {
       <div className="max-w-7xl mx-auto">
         <h1 className="text-5xl font-black mb-2">👥 Quinielas Registradas</h1>
 
-        <p className="text-pink-400 font-bold mb-2">
-          Jornada activa: {numeroJornada}
-        </p>
 
         <p className="text-yellow-400 mb-4">
           Revisa las quinielas guardadas de esta jornada.
         </p>
+        <div className="flex flex-wrap gap-3 mb-6">
+  <Link
+    href="/quinielas?jornada=1"
+    className={`px-5 py-2 rounded-full border text-sm font-black transition-all ${
+      numeroJornada === "1"
+        ? "bg-pink-600 text-white border-pink-400 shadow-lg shadow-pink-500/40 scale-105"
+        : "bg-gray-950 text-gray-300 border-gray-700 hover:border-pink-500 hover:text-white"
+    }`}
+  >
+    Jornada 1
+  </Link>
+
+  <Link
+    href="/quinielas?jornada=2"
+    className={`px-5 py-2 rounded-full border text-sm font-black transition-all ${
+      numeroJornada === "2"
+        ? "bg-pink-600 text-white border-pink-400 shadow-lg shadow-pink-500/40 scale-105"
+        : "bg-gray-950 text-gray-300 border-gray-700 hover:border-pink-500 hover:text-white"
+    }`}
+  >
+    Jornada 2
+  </Link>
+
+  <Link
+    href="/quinielas?jornada=3"
+    className={`px-5 py-2 rounded-full border text-sm font-black transition-all ${
+      numeroJornada === "3"
+        ? "bg-pink-600 text-white border-pink-400 shadow-lg shadow-pink-500/40 scale-105"
+        : "bg-gray-950 text-gray-300 border-gray-700 hover:border-pink-500 hover:text-white"
+    }`}
+  >
+    Jornada 3
+  </Link>
+</div>
 
         <p className="text-pink-400 font-bold mb-6">
           Total de participantes: {participantes.length}
