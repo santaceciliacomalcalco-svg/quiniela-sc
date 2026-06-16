@@ -5,6 +5,7 @@ import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { getJornadaId, JORNADAS_DISPONIBLES } from "../lib/jornada";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 type Participante = {
   id: string;
@@ -182,6 +183,13 @@ function TablaContent() {
           <p className="text-pink-400 font-bold mt-4">
             Jornada activa: {jornadaId}
           </p>
+
+          <Link
+            href={`/ranking-flyer?jornada=${jornadaId}`}
+            className="inline-block mt-4 bg-pink-600 hover:bg-pink-500 text-white font-black rounded-2xl px-6 py-3 shadow-lg shadow-pink-500/30 transition-all"
+          >
+            🎨 Generar flyer del ranking
+          </Link>
         </div>
 
         <div className="border border-pink-500 rounded-3xl overflow-hidden shadow-2xl shadow-pink-500/20">
@@ -248,7 +256,13 @@ function TablaContent() {
 
 export default function TablaPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-black text-pink-400 flex items-center justify-center font-bold">Cargando...</div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-black text-pink-400 flex items-center justify-center font-bold">
+          Cargando...
+        </div>
+      }
+    >
       <TablaContent />
     </Suspense>
   );
