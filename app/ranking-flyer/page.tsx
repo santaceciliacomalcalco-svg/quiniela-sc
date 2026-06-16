@@ -6,6 +6,7 @@ import { db } from "../lib/firebase";
 import { getJornadaId } from "../lib/jornada";
 import { useSearchParams } from "next/navigation";
 import html2canvas from "html2canvas";
+import QRCode from "qrcode";
 
 type Participante = {
   id: string;
@@ -32,11 +33,21 @@ function RankingFlyerContent() {
   const [resultados, setResultados] = useState<Resultado>({});
   const [loading, setLoading] = useState(true);
   const [generando, setGenerando] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState("");
+  const [imagenGenerada, setImagenGenerada] = useState("");
 
   const appUrl = `https://quiniela-sc.vercel.app/tabla?jornada=${jornadaId}`;
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
-    appUrl
-  )}`;
+
+  useEffect(() => {
+    QRCode.toDataURL(appUrl, {
+      width: 220,
+      margin: 1,
+      color: {
+        dark: "#000000",
+        light: "#ffffff",
+      },
+    }).then(setQrDataUrl);
+  }, [appUrl]);
 
   useEffect(() => {
     async function cargarDatos() {
@@ -133,12 +144,30 @@ function RankingFlyerContent() {
       scale: 3,
       backgroundColor: "#000000",
       useCORS: true,
-      allowTaint: true,
+      allowTaint: false,
+      logging: false,
     });
+
+    setImagenGenerada(canvas.toDataURL("image/png"));
 
     return await new Promise<Blob | null>((resolve) => {
       canvas.toBlob((blob) => resolve(blob), "image/png", 1);
     });
+  }
+
+  function descargarBlob(blob: Blob) {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = `ranking-${jornadaId}.png`;
+    link.target = "_blank";
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
   async function compartirFlyer() {
@@ -160,12 +189,17 @@ function RankingFlyerContent() {
         });
       } else {
         descargarBlob(blob);
+        alert("Si no se descargó, mantén presionada la imagen generada y guárdala.");
       }
     } catch (error) {
       console.error("Error compartiendo flyer:", error);
-      alert("No se pudo compartir. Se descargará la imagen.");
+
       const blob = await generarBlob();
-      if (blob) descargarBlob(blob);
+      if (blob) {
+        descargarBlob(blob);
+      }
+
+      alert("No se pudo compartir directo. Abajo aparecerá la imagen para guardarla manteniendo presionado.");
     } finally {
       setGenerando(false);
     }
@@ -174,24 +208,18 @@ function RankingFlyerContent() {
   async function descargarFlyer() {
     try {
       setGenerando(true);
+
       const blob = await generarBlob();
-      if (blob) descargarBlob(blob);
+
+      if (blob) {
+        descargarBlob(blob);
+      }
     } catch (error) {
       console.error("Error descargando flyer:", error);
+      alert("No se pudo descargar. Mantén presionada la imagen generada para guardarla.");
     } finally {
       setGenerando(false);
     }
-  }
-
-  function descargarBlob(blob: Blob) {
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `ranking-${jornadaId}.png`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
   }
 
   if (loading) {
@@ -309,7 +337,13 @@ function RankingFlyerContent() {
           </div>
 
           <div className="bg-white p-2 rounded-xl">
-            <img src={qrUrl} alt="QR Quiniela SC" className="w-24 h-24" />
+            {qrDataUrl && (
+              <img
+                src={qrDataUrl}
+                alt="QR Quiniela SC"
+                className="w-24 h-24"
+              />
+            )}
           </div>
         </div>
 
@@ -322,6 +356,20 @@ function RankingFlyerContent() {
           </p>
         </div>
       </div>
+
+      {imagenGenerada && (
+        <div className="print:hidden mt-8 w-full max-w-[430px] border border-green-500 rounded-3xl p-4 bg-green-500/10">
+          <p className="text-green-400 font-black text-center mb-3">
+            ✅ Imagen generada. Mantén presionada para guardar o compartir.
+          </p>
+
+          <img
+            src={imagenGenerada}
+            alt="Ranking generado"
+            className="w-full rounded-2xl border border-green-500"
+          />
+        </div>
+      )}
     </main>
   );
 }
