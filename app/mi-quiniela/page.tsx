@@ -51,10 +51,6 @@ function MiQuinielaContent() {
 
     setParticipantes(lista);
 
-    if (lista.length > 0) {
-      setParticipanteId(lista[0].id);
-    }
-
     setCargando(false);
   }
 
@@ -67,7 +63,7 @@ function MiQuinielaContent() {
     if (documento.exists()) {
       setSelecciones(documento.data().selecciones || {});
       setBloqueada(true);
-      setMensaje("🔒 Esta quiniela ya fue guardada y no se puede modificar.");
+      setMensaje("");
     } else {
       setSelecciones({});
       setBloqueada(false);
@@ -211,8 +207,8 @@ function MiQuinielaContent() {
 
         {bloqueada && (
           <div className="bg-yellow-500/10 border border-yellow-400 text-yellow-300 rounded-2xl p-4 mb-6 font-bold">
-            🔒 Esta quiniela de Jornada {numeroJornada} ya está guardada. Puedes verla, pero ya no modificarla.
-          </div>
+  🔒 Esta quiniela ya está guardada. Puedes verla, pero ya no modificarla.
+</div>
         )}
 
         <div className="border border-pink-500 rounded-2xl p-5 mb-8">
@@ -224,7 +220,11 @@ function MiQuinielaContent() {
             value={participanteId}
             onChange={(e) => setParticipanteId(e.target.value)}
             className="bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 w-full max-w-md"
+            
           >
+            <option value="">
+  Selecciona tu Nombre
+</option>
             {cargando && <option value="">Cargando...</option>}
 
             {!cargando && participantes.length === 0 && (

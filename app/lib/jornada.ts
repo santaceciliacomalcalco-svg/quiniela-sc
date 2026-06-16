@@ -1,7 +1,13 @@
 export const JORNADA_DEFAULT = "jornada-1";
 
 export function getJornadaId(jornadaParam?: string | null) {
-  return jornadaParam || JORNADA_DEFAULT;
+  if (!jornadaParam) return JORNADA_DEFAULT;
+
+  if (jornadaParam.startsWith("jornada-")) {
+    return jornadaParam;
+  }
+
+  return `jornada-${jornadaParam}`;
 }
 
 export const JORNADAS_DISPONIBLES = [
