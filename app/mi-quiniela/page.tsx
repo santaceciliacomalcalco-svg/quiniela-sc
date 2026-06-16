@@ -5,7 +5,8 @@ import { db } from "../lib/firebase";
 import { getJornadaId } from "../lib/jornada";
 import { getPartidos } from "../lib/partidos";
 import { collection, doc, getDocs, getDoc, setDoc } from "firebase/firestore";
-import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 type Participante = {
   id: string;
@@ -13,7 +14,6 @@ type Participante = {
 };
 
 function MiQuinielaContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   const jornadaParam = getJornadaId(searchParams.get("jornada"));
@@ -80,10 +80,6 @@ function MiQuinielaContent() {
       cargarQuiniela(participanteId);
     }
   }, [participanteId, jornadaId]);
-
-  function cambiarJornada(numero: number) {
-    router.push(`/mi-quiniela?jornada=${numero}`);
-  }
 
   function seleccionar(partidoId: number, valor: string) {
     if (bloqueada) {
@@ -172,34 +168,34 @@ function MiQuinielaContent() {
           Elige tu jornada, busca tu nombre y rellena tu quiniela.
         </p>
 
-        <div className="flex flex-wrap gap-3 mb-6">
-          <button
-            onClick={() => cambiarJornada(1)}
-            className={`px-5 py-2 rounded-full border text-sm font-black transition-all ${claseBotonJornada(
-              "1"
-            )}`}
-          >
-            Jornada 1
-          </button>
+      <div className="flex flex-wrap gap-3 mb-6">
+  <Link
+    href="/mi-quiniela?jornada=1"
+    className={`px-5 py-2 rounded-full border text-sm font-black transition-all ${claseBotonJornada(
+      "1"
+    )}`}
+  >
+    Jornada 1
+  </Link>
 
-          <button
-            onClick={() => cambiarJornada(2)}
-            className={`px-5 py-2 rounded-full border text-sm font-black transition-all ${claseBotonJornada(
-              "2"
-            )}`}
-          >
-            Jornada 2
-          </button>
+  <Link
+    href="/mi-quiniela?jornada=2"
+    className={`px-5 py-2 rounded-full border text-sm font-black transition-all ${claseBotonJornada(
+      "2"
+    )}`}
+  >
+    Jornada 2
+  </Link>
 
-          <button
-            onClick={() => cambiarJornada(3)}
-            className={`px-5 py-2 rounded-full border text-sm font-black transition-all ${claseBotonJornada(
-              "3"
-            )}`}
-          >
-            Jornada 3
-          </button>
-        </div>
+  <Link
+    href="/mi-quiniela?jornada=3"
+    className={`px-5 py-2 rounded-full border text-sm font-black transition-all ${claseBotonJornada(
+      "3"
+    )}`}
+  >
+    Jornada 3
+  </Link>
+</div>
 
         <p className="text-gray-400 mb-6">
           Selecciona Local, Empate o Visita. Cada acierto vale 1 punto.
