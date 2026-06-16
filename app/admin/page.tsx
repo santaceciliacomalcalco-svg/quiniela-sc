@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { db, auth } from "../lib/firebase";
 import { getJornadaId } from "../lib/jornada";
+import { getPartidos } from "../lib/partidos";
 import { onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import {
@@ -24,6 +25,7 @@ type Participante = {
 export default function Admin() {
   const router = useRouter();
   const jornadaId = getJornadaId();
+  const partidos = getPartidos(jornadaId);
 
   const [nombre, setNombre] = useState("");
   const [participantes, setParticipantes] = useState<Participante[]>([]);
@@ -39,33 +41,6 @@ export default function Admin() {
 
     return () => unsubscribe();
   }, [router]);
-
-  const partidos = [
-    { id: 1, local: "México", visitante: "Sudáfrica" },
-    { id: 2, local: "Corea del Sur", visitante: "República Checa" },
-    { id: 3, local: "Canadá", visitante: "Bosnia y Herzegovina" },
-    { id: 4, local: "Estados Unidos", visitante: "Paraguay" },
-    { id: 5, local: "Qatar", visitante: "Suiza" },
-    { id: 6, local: "Haití", visitante: "Escocia" },
-    { id: 7, local: "Brasil", visitante: "Marruecos" },
-    { id: 8, local: "Australia", visitante: "Turquía" },
-    { id: 9, local: "Costa de Marfil", visitante: "Ecuador" },
-    { id: 10, local: "Alemania", visitante: "Curazao" },
-    { id: 11, local: "Países Bajos", visitante: "Japón" },
-    { id: 12, local: "Suecia", visitante: "Túnez" },
-    { id: 13, local: "España", visitante: "Cabo Verde" },
-    { id: 14, local: "Bélgica", visitante: "Egipto" },
-    { id: 15, local: "Arabia Saudita", visitante: "Uruguay" },
-    { id: 16, local: "Irán", visitante: "Nueva Zelanda" },
-    { id: 17, local: "Francia", visitante: "Senegal" },
-    { id: 18, local: "Irak", visitante: "Noruega" },
-    { id: 19, local: "Argentina", visitante: "Argelia" },
-    { id: 20, local: "Austria", visitante: "Jordania" },
-    { id: 21, local: "Portugal", visitante: "RD Congo" },
-    { id: 22, local: "Inglaterra", visitante: "Croacia" },
-    { id: 23, local: "Ghana", visitante: "Panamá" },
-    { id: 24, local: "Uzbekistán", visitante: "Colombia" },
-  ];
 
   async function cargarParticipantes() {
     const snapshot = await getDocs(
@@ -95,7 +70,14 @@ export default function Admin() {
   }
 
   async function cargarResultados() {
-    const referencia = doc(db, "jornadas", jornadaId, "configuracion", "resultados");
+    const referencia = doc(
+      db,
+      "jornadas",
+      jornadaId,
+      "configuracion",
+      "resultados"
+    );
+
     const documento = await getDoc(referencia);
 
     if (documento.exists()) {
@@ -108,7 +90,7 @@ export default function Admin() {
   useEffect(() => {
     cargarParticipantes();
     cargarResultados();
-  }, []);
+  }, [jornadaId]);
 
   async function guardarParticipante() {
     if (!nombre.trim()) {
@@ -154,7 +136,10 @@ export default function Admin() {
     setMensaje("🔄 Resultados reiniciados en Firebase.");
   }
 
-  function botonClase(tipo: "local" | "empate" | "visita", seleccionado: boolean) {
+  function botonClase(
+    tipo: "local" | "empate" | "visita",
+    seleccionado: boolean
+  ) {
     if (tipo === "local") {
       return seleccionado
         ? "bg-pink-500 text-white ring-4 ring-pink-200 scale-110 shadow-lg shadow-pink-500/60"
@@ -180,6 +165,10 @@ export default function Admin() {
     <main className="min-h-screen bg-black text-white p-6">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-5xl font-black mb-2">🛠️ Panel Admin</h1>
+
+        <p className="text-pink-400 font-bold mb-2">
+          Jornada activa: {jornadaId}
+        </p>
 
         <p className="text-gray-400 mb-8">
           Agrega participantes y captura resultados reales.
@@ -250,7 +239,7 @@ export default function Admin() {
             <div>
               <h2 className="text-3xl font-black">🏁 Resultados</h2>
               <p className="text-gray-400">
-                Estos resultados se guardan en Firebase.
+                Estos resultados se guardan en Firebase por jornada.
               </p>
             </div>
 
@@ -295,7 +284,10 @@ export default function Admin() {
                       resultados[partido.id] === "local"
                     )}`}
                   >
-                    {textoBoton(partido.local, resultados[partido.id] === "local")}
+                    {textoBoton(
+                      partido.local,
+                      resultados[partido.id] === "local"
+                    )}
                   </button>
 
                   <button
@@ -319,7 +311,10 @@ export default function Admin() {
                       resultados[partido.id] === "visita"
                     )}`}
                   >
-                    {textoBoton(partido.visitante, resultados[partido.id] === "visita")}
+                    {textoBoton(
+                      partido.visitante,
+                      resultados[partido.id] === "visita"
+                    )}
                   </button>
                 </div>
               </div>

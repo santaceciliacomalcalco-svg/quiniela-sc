@@ -3,8 +3,10 @@
 import { Suspense, useEffect, useState } from "react";
 import { db } from "../lib/firebase";
 import { getJornadaId } from "../lib/jornada";
+import { getPartidos } from "../lib/partidos";
 import { collection, getDocs } from "firebase/firestore";
 import { useSearchParams } from "next/navigation";
+import jsPDF from "jspdf";
 
 type Participante = {
   id: string;
@@ -17,41 +19,27 @@ type Quiniela = {
   selecciones: Record<number, string>;
 };
 
+type Partido = {
+  id: number;
+  local: string;
+  visitante: string;
+};
+
 function QuinielasContent() {
   const searchParams = useSearchParams();
-  const jornadaId = getJornadaId(searchParams.get("jornada"));
+
+  const jornadaParam = getJornadaId(searchParams.get("jornada"));
+  const jornadaId = jornadaParam.startsWith("jornada-")
+    ? jornadaParam
+    : `jornada-${jornadaParam}`;
+
+  const numeroJornada = jornadaId.replace("jornada-", "");
+  const partidos = getPartidos(jornadaId);
 
   const [participantes, setParticipantes] = useState<Participante[]>([]);
   const [quinielas, setQuinielas] = useState<Record<string, Quiniela>>({});
   const [abierta, setAbierta] = useState<string | null>(null);
   const [cargando, setCargando] = useState(true);
-
-  const partidos = [
-    { id: 1, local: "México", visitante: "Sudáfrica" },
-    { id: 2, local: "Corea del Sur", visitante: "República Checa" },
-    { id: 3, local: "Canadá", visitante: "Bosnia y Herzegovina" },
-    { id: 4, local: "Estados Unidos", visitante: "Paraguay" },
-    { id: 5, local: "Qatar", visitante: "Suiza" },
-    { id: 6, local: "Haití", visitante: "Escocia" },
-    { id: 7, local: "Brasil", visitante: "Marruecos" },
-    { id: 8, local: "Australia", visitante: "Turquía" },
-    { id: 9, local: "Costa de Marfil", visitante: "Ecuador" },
-    { id: 10, local: "Alemania", visitante: "Curazao" },
-    { id: 11, local: "Países Bajos", visitante: "Japón" },
-    { id: 12, local: "Suecia", visitante: "Túnez" },
-    { id: 13, local: "España", visitante: "Cabo Verde" },
-    { id: 14, local: "Bélgica", visitante: "Egipto" },
-    { id: 15, local: "Arabia Saudita", visitante: "Uruguay" },
-    { id: 16, local: "Irán", visitante: "Nueva Zelanda" },
-    { id: 17, local: "Francia", visitante: "Senegal" },
-    { id: 18, local: "Irak", visitante: "Noruega" },
-    { id: 19, local: "Argentina", visitante: "Argelia" },
-    { id: 20, local: "Austria", visitante: "Jordania" },
-    { id: 21, local: "Portugal", visitante: "RD Congo" },
-    { id: 22, local: "Inglaterra", visitante: "Croacia" },
-    { id: 23, local: "Ghana", visitante: "Panamá" },
-    { id: 24, local: "Uzbekistán", visitante: "Colombia" },
-  ];
 
   async function cargarDatos() {
     setCargando(true);
@@ -93,10 +81,7 @@ function QuinielasContent() {
     cargarDatos();
   }, [jornadaId]);
 
-  function mostrarSeleccion(
-    partido: { local: string; visitante: string },
-    seleccion?: string
-  ) {
+  function mostrarSeleccion(partido: Partido, seleccion?: string) {
     if (seleccion === "local") return partido.local;
     if (seleccion === "empate") return "Empate";
     if (seleccion === "visita") return partido.visitante;
@@ -105,6 +90,121 @@ function QuinielasContent() {
 
   function contarPicks(participanteId: string) {
     return Object.keys(quinielas[participanteId]?.selecciones || {}).length;
+  }
+
+  function generarPDFTodasLasQuinielas() {
+    const pdf = new jsPDF("p", "mm", "a4");
+    const fecha = new Date().toLocaleString("es-MX");
+
+    let y = 16;
+
+    function pintarFondo() {
+      pdf.setFillColor(0, 0, 0);
+      pdf.rect(0, 0, 210, 297, "F");
+    }
+
+    function encabezado() {
+      pintarFondo();
+
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(24);
+      pdf.text("QUINIELA SC", 105, 16, { align: "center" });
+
+      pdf.setTextColor(236, 72, 153);
+      pdf.setFontSize(14);
+      pdf.text(`PDF Todas las Quinielas - Jornada ${numeroJornada}`, 105, 25, {
+        align: "center",
+      });
+
+      pdf.setTextColor(250, 204, 21);
+      pdf.setFontSize(9);
+      pdf.text(`Generado: ${fecha}`, 105, 32, { align: "center" });
+
+      pdf.setTextColor(255, 255, 255);
+      pdf.text(`Total de participantes: ${participantes.length}`, 105, 38, {
+        align: "center",
+      });
+    }
+
+    encabezado();
+    y = 48;
+
+    participantes.forEach((participante, index) => {
+      const quiniela = quinielas[participante.id];
+
+      if (y > 218) {
+        pdf.addPage();
+        encabezado();
+        y = 48;
+      }
+
+      const altoCaja = 66;
+
+      pdf.setDrawColor(236, 72, 153);
+      pdf.setFillColor(15, 15, 18);
+      pdf.roundedRect(10, y, 190, altoCaja, 3, 3, "FD");
+
+      pdf.setFillColor(236, 72, 153);
+      pdf.roundedRect(10, y, 190, 10, 3, 3, "F");
+
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(11);
+      pdf.text(`${index + 1}. ${participante.nombre}`, 14, y + 7);
+
+      pdf.setFontSize(8);
+      pdf.text(
+        `Picks: ${contarPicks(participante.id)}/${partidos.length}`,
+        190,
+        y + 7,
+        { align: "right" }
+      );
+
+      let filaY = y + 16;
+
+      partidos.forEach((partido) => {
+        const seleccion = mostrarSeleccion(
+          partido,
+          quiniela?.selecciones?.[partido.id]
+        );
+
+        const columna = partido.id <= 12 ? 0 : 1;
+        const xBase = columna === 0 ? 14 : 106;
+        const yFila = y + 16 + ((partido.id - 1) % 12) * 4;
+
+        pdf.setTextColor(180, 180, 180);
+        pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(6.5);
+        pdf.text(`${partido.id}. ${partido.local} vs ${partido.visitante}`, xBase, yFila, {
+          maxWidth: 50,
+        });
+
+        pdf.setTextColor(250, 204, 21);
+        pdf.setFont("helvetica", "bold");
+        pdf.text(seleccion, xBase + 57, yFila, {
+          maxWidth: 28,
+        });
+      });
+
+      y += altoCaja + 8;
+    });
+
+    pdf.setTextColor(150, 150, 150);
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(8);
+
+    if (y > 275) {
+      pdf.addPage();
+      pintarFondo();
+      y = 20;
+    }
+
+    pdf.text("Documento generado automáticamente por QUINIELA SC.", 105, y, {
+      align: "center",
+    });
+
+    pdf.save(`QUINIELA_SC_JORNADA_${numeroJornada}_TODAS_LAS_QUINIELAS.pdf`);
   }
 
   if (cargando) {
@@ -121,7 +221,7 @@ function QuinielasContent() {
         <h1 className="text-5xl font-black mb-2">👥 Quinielas Registradas</h1>
 
         <p className="text-pink-400 font-bold mb-2">
-          Jornada activa: {jornadaId}
+          Jornada activa: {numeroJornada}
         </p>
 
         <p className="text-yellow-400 mb-4">
@@ -182,7 +282,9 @@ function QuinielasContent() {
                         <div className="p-3 text-yellow-400 font-bold text-center">
                           {mostrarSeleccion(
                             partido,
-                            quinielas[participante.id]?.selecciones?.[partido.id]
+                            quinielas[participante.id]?.selecciones?.[
+                              partido.id
+                            ]
                           )}
                         </div>
                       </div>
@@ -195,12 +297,22 @@ function QuinielasContent() {
         </div>
 
         {participantes.length === 0 && (
-          <div className="border border-gray-700 rounded-3xl p-8 text-center">
+          <div className="border border-gray-700 rounded-3xl p-8 text-center mt-8">
             <p className="text-gray-400">
               Todavía no hay participantes registrados en esta jornada.
             </p>
           </div>
         )}
+
+        <div className="flex justify-center mt-12 mb-6">
+          <button
+            onClick={generarPDFTodasLasQuinielas}
+            disabled={participantes.length === 0}
+            className="bg-yellow-500 hover:bg-yellow-400 disabled:bg-gray-700 disabled:text-gray-400 text-black font-black text-xl px-10 py-4 rounded-2xl shadow-lg shadow-yellow-500/30 transition-all"
+          >
+            📄 PDF Todas las Quinielas
+          </button>
+        </div>
       </div>
     </main>
   );

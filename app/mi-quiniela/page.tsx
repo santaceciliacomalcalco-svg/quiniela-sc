@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { db } from "../lib/firebase";
 import { getJornadaId } from "../lib/jornada";
+import { getPartidos } from "../lib/partidos";
 import { collection, doc, getDocs, getDoc, setDoc } from "firebase/firestore";
 import { useSearchParams } from "next/navigation";
 
@@ -14,33 +15,7 @@ type Participante = {
 function MiQuinielaContent() {
   const searchParams = useSearchParams();
   const jornadaId = getJornadaId(searchParams.get("jornada"));
-
-  const partidos = [
-    { id: 1, local: "México", visitante: "Sudáfrica" },
-    { id: 2, local: "Corea del Sur", visitante: "República Checa" },
-    { id: 3, local: "Canadá", visitante: "Bosnia y Herzegovina" },
-    { id: 4, local: "Estados Unidos", visitante: "Paraguay" },
-    { id: 5, local: "Qatar", visitante: "Suiza" },
-    { id: 6, local: "Haití", visitante: "Escocia" },
-    { id: 7, local: "Brasil", visitante: "Marruecos" },
-    { id: 8, local: "Australia", visitante: "Turquía" },
-    { id: 9, local: "Costa de Marfil", visitante: "Ecuador" },
-    { id: 10, local: "Alemania", visitante: "Curazao" },
-    { id: 11, local: "Países Bajos", visitante: "Japón" },
-    { id: 12, local: "Suecia", visitante: "Túnez" },
-    { id: 13, local: "España", visitante: "Cabo Verde" },
-    { id: 14, local: "Bélgica", visitante: "Egipto" },
-    { id: 15, local: "Arabia Saudita", visitante: "Uruguay" },
-    { id: 16, local: "Irán", visitante: "Nueva Zelanda" },
-    { id: 17, local: "Francia", visitante: "Senegal" },
-    { id: 18, local: "Irak", visitante: "Noruega" },
-    { id: 19, local: "Argentina", visitante: "Argelia" },
-    { id: 20, local: "Austria", visitante: "Jordania" },
-    { id: 21, local: "Portugal", visitante: "RD Congo" },
-    { id: 22, local: "Inglaterra", visitante: "Croacia" },
-    { id: 23, local: "Ghana", visitante: "Panamá" },
-    { id: 24, local: "Uzbekistán", visitante: "Colombia" },
-  ];
+  const partidos = getPartidos(jornadaId);
 
   const [participantes, setParticipantes] = useState<Participante[]>([]);
   const [participanteId, setParticipanteId] = useState("");
@@ -220,6 +195,12 @@ function MiQuinielaContent() {
           </p>
         </div>
 
+  {!partidos.length && (
+  <div className="border border-yellow-500 bg-yellow-500/10 rounded-2xl p-5 text-yellow-300">
+    ⚠️ No hay partidos cargados para esta jornada.
+  </div>
+)}
+
         <div className="space-y-4">
           {partidos.map((partido) => (
             <div
@@ -273,7 +254,7 @@ function MiQuinielaContent() {
         </div>
 
         <div className="flex flex-col items-center mt-10 gap-4">
-          {!bloqueada && participantes.length > 0 && (
+          {!bloqueada && participantes.length > 0 && partidos.length > 0 && (
             <button
               onClick={guardarQuiniela}
               className="bg-pink-600 hover:bg-pink-500 text-white font-bold text-xl px-12 py-4 rounded-2xl shadow-lg shadow-pink-500/40 transition-all"
