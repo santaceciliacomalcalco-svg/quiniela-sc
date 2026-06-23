@@ -204,18 +204,18 @@ async function guardarEstadosJornadas() {
   ) {
     if (tipo === "local") {
       return seleccionado
-        ? "bg-pink-500 text-white ring-4 ring-pink-200 scale-110 shadow-lg shadow-pink-500/60"
+        ? "bg-pink-500 text-white border-2 border-pink-200 shadow-lg shadow-pink-500/60"
         : "bg-black text-pink-400 border border-pink-500 hover:bg-pink-600 hover:text-white";
     }
 
     if (tipo === "empate") {
       return seleccionado
-        ? "bg-white text-black ring-4 ring-gray-300 scale-110 shadow-lg shadow-white/50"
+       ? "bg-white text-black border-2 border-gray-300 shadow-lg shadow-white/50"
         : "bg-black text-white border border-white hover:bg-white hover:text-black";
     }
 
     return seleccionado
-      ? "bg-blue-600 text-white ring-4 ring-blue-300 scale-110 shadow-lg shadow-blue-500/60"
+      ? "bg-blue-600 text-white border-2 border-blue-300 shadow-lg shadow-blue-500/60"
       : "bg-black text-blue-400 border border-blue-500 hover:bg-blue-700 hover:text-white";
   }
 
