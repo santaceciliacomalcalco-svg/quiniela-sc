@@ -6,37 +6,41 @@ import { useState } from "react";
 const numeroTarjeta = "4152314480160061";
 
 const jornadas = [
-  {
-    id: "jornada-1",
-    numero: "1",
-    nombre: "Jornada 1",
-    flyer: "/jornada-1.jpg",
-    estado: "cerrada",
-    etiqueta: "En curso",
-    cierre: "Cerró: 11 de junio · 1:00 PM",
-  },
-  {
-    id: "jornada-2",
-    numero: "2",
-    nombre: "Jornada 2",
-    flyer: "/jornada-2.jpg",
-    estado: "venta",
-    etiqueta: "En venta",
-    cierre: "Cierra: 18 de junio · 10:00 AM",
-  },
-  {
-    id: "jornada-3",
-    numero: "3",
-    nombre: "Jornada 3",
-    flyer: "/jornada-3.jpg",
-    estado: "venta",
-    etiqueta: "En venta",
-    cierre: "Cierra: 24 de junio · 1:00 PM",
-  },
+{
+  id: "jornada-1",
+  numero: "1",
+  nombre: "Jornada 1",
+  flyer: "/jornada-1.jpg",
+  estado: "curso",
+  etiqueta: "En curso",
+  cierre: "Cerró: 11 de junio · 1:00 PM",
+},
+{
+  id: "jornada-2",
+  numero: "2",
+  nombre: "Jornada 2",
+  flyer: "/jornada-2.jpg",
+  estado: "venta",
+  etiqueta: "En venta",
+  cierre: "Cierra: 18 de junio · 10:00 AM",
+},
+{
+  id: "jornada-3",
+  numero: "3",
+  nombre: "Jornada 3",
+  flyer: "/jornada-3.jpg",
+  estado: "venta",
+  etiqueta: "En venta",
+  cierre: "Cierra: 24 de junio · 1:00 PM",
+}, 
 ];
 
 function estilosEstado(estado: string) {
-  if (estado === "cerrada") {
+  if (
+    estado === "curso" ||
+    estado === "cerrada" ||
+    estado === "finalizada"
+  ) {
     return {
       card: "border-yellow-400 bg-yellow-950/10 shadow-yellow-500/20",
       textoEstado: "text-yellow-300",
@@ -188,7 +192,10 @@ export default function Home() {
         <div className="grid gap-4">
           {jornadas.map((jornada) => {
             const estilos = estilosEstado(jornada.estado);
-            const cerrada = jornada.estado === "cerrada";
+            const cerrada =
+  jornada.estado === "cerrada" ||
+  jornada.estado === "curso" ||
+  jornada.estado === "finalizada";
 
             return (
               <div
