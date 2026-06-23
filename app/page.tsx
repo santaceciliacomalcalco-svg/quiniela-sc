@@ -11,8 +11,8 @@ const jornadas = [
   numero: "1",
   nombre: "Jornada 1",
   flyer: "/jornada-1.jpg",
-  estado: "curso",
-  etiqueta: "En curso",
+  estado: "finalizada",
+  etiqueta: "Finalizada",
   cierre: "Cerró: 11 de junio · 1:00 PM",
 },
 {
@@ -20,9 +20,9 @@ const jornadas = [
   numero: "2",
   nombre: "Jornada 2",
   flyer: "/jornada-2.jpg",
-  estado: "venta",
-  etiqueta: "En venta",
-  cierre: "Cierra: 18 de junio · 10:00 AM",
+  estado: "curso",
+  etiqueta: "En curso",
+  cierre: "Cerró: 18 de junio · 10:00 AM",
 },
 {
   id: "jornada-3",
@@ -32,7 +32,7 @@ const jornadas = [
   estado: "venta",
   etiqueta: "En venta",
   cierre: "Cierra: 24 de junio · 1:00 PM",
-}, 
+},
 ];
 
 function estilosEstado(estado: string) {

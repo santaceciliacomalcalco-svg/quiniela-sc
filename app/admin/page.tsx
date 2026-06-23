@@ -169,7 +169,10 @@ function AdminContent() {
     setMensaje(`🔄 Resultados reiniciados en Jornada ${numeroJornada}.`);
   }
 
-  async function guardarEstadosJornadas() {
+async function guardarEstadosJornadas() {
+  alert("ENTRÉ A GUARDAR");
+
+  try {
     await setDoc(
       doc(db, "configuracion", "jornadas"),
       {
@@ -179,8 +182,14 @@ function AdminContent() {
       { merge: true }
     );
 
+    alert("GUARDADO OK");
+
     setMensaje("✅ Estados de jornadas guardados.");
+  } catch (error) {
+    console.error(error);
+    alert("ERROR AL GUARDAR");
   }
+}
 
   function cambiarEstadoJornada(jornada: string, estado: EstadoJornada) {
     setEstadosJornadas({
