@@ -180,7 +180,16 @@ const partidos = getPartidos(jornadaId);
     className={`px-5 py-2 rounded-full border text-sm font-black transition-all ${claseBotonJornada(
       "1"
     )}`}
-  >
+  ><Link
+  href="/mi-quiniela?jornada=16vos"
+  className={`px-5 py-2 rounded-full border text-sm font-black transition-all ${
+    numeroJornada === "16vos"
+      ? "bg-pink-600 text-white border-pink-400 shadow-lg shadow-pink-500/40 scale-105"
+      : "bg-gray-950 text-gray-300 border-gray-700 hover:border-pink-500 hover:text-white"
+  }`}
+>
+  16vos
+</Link>
     Jornada 1
   </Link>
 
