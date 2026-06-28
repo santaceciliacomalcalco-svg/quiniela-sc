@@ -5,42 +5,48 @@ import { useState } from "react";
 
 const numeroTarjeta = "4152314480160061";
 
-const jornadas = [
-{
-  id: "jornada-1",
-  numero: "1",
-  nombre: "Jornada 1",
-  flyer: "/jornada-1.jpg",
-  estado: "finalizada",
-  etiqueta: "Finalizada",
-  cierre: "Cerró: 11 de junio · 1:00 PM",
-},
-{
-  id: "jornada-2",
-  numero: "2",
-  nombre: "Jornada 2",
-  flyer: "/jornada-2.jpg",
-  estado: "curso",
-  etiqueta: "En curso",
-  cierre: "Cerró: 18 de junio · 10:00 AM",
-},
-{
-  id: "jornada-3",
-  numero: "3",
-  nombre: "Jornada 3",
-  flyer: "/jornada-3.jpg",
+const jornadaActiva = {
+  id: "16vos",
+  numero: "16vos",
+  nombre: "16vos de Final",
+  flyer: "/16vos-final.jpg",
   estado: "venta",
   etiqueta: "En venta",
-  cierre: "Cierra: 24 de junio · 1:00 PM",
-},
+  cierre: "Registro abierto",
+};
+
+const jornadasAnteriores = [
+  {
+    id: "jornada-3",
+    numero: "3",
+    nombre: "Jornada 3",
+    flyer: "/jornada-3.jpg",
+    estado: "finalizada",
+    etiqueta: "Finalizada",
+    cierre: "Cerró: 24 de junio · 1:00 PM",
+  },
+  {
+    id: "jornada-2",
+    numero: "2",
+    nombre: "Jornada 2",
+    flyer: "/jornada-2.jpg",
+    estado: "finalizada",
+    etiqueta: "Finalizada",
+    cierre: "Cerró: 18 de junio · 10:00 AM",
+  },
+  {
+    id: "jornada-1",
+    numero: "1",
+    nombre: "Jornada 1",
+    flyer: "/jornada-1.jpg",
+    estado: "finalizada",
+    etiqueta: "Finalizada",
+    cierre: "Cerró: 11 de junio · 1:00 PM",
+  },
 ];
 
 function estilosEstado(estado: string) {
-  if (
-    estado === "curso" ||
-    estado === "cerrada" ||
-    estado === "finalizada"
-  ) {
+  if (estado === "curso" || estado === "cerrada" || estado === "finalizada") {
     return {
       card: "border-yellow-400 bg-yellow-950/10 shadow-yellow-500/20",
       textoEstado: "text-yellow-300",
@@ -57,9 +63,92 @@ function estilosEstado(estado: string) {
   };
 }
 
+function TarjetaJornada({ jornada }: { jornada: any }) {
+  const estilos = estilosEstado(jornada.estado);
+  const cerrada =
+    jornada.estado === "cerrada" ||
+    jornada.estado === "curso" ||
+    jornada.estado === "finalizada";
+
+  return (
+    <div className={`border rounded-3xl p-5 shadow-xl ${estilos.card}`}>
+      <div className="flex items-center justify-between gap-4 mb-4">
+        <div className="flex items-center gap-3">
+          <div className="w-16 h-12 rounded-2xl bg-pink-600 flex items-center justify-center font-black text-xl">
+            {jornada.numero}
+          </div>
+
+          <div>
+            <h3 className="text-3xl font-black leading-none">
+              {jornada.nombre}
+            </h3>
+
+            <p className="text-yellow-300 font-bold text-sm mt-2">
+              ⏰ {jornada.cierre}
+            </p>
+          </div>
+        </div>
+
+        <img
+          src="/fifa-logo.png"
+          alt="FIFA"
+          className="h-24 w-24 object-contain"
+        />
+      </div>
+
+      <div className="flex justify-center mb-5">
+        <div className="flex items-center gap-2">
+          <span className="text-2xl">{estilos.iconoEstado}</span>
+          <span className={`text-xl font-black tracking-wide ${estilos.textoEstado}`}>
+            {jornada.etiqueta}
+          </span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-3 mb-3">
+        <Link
+          href={jornada.flyer}
+          target="_blank"
+          className="border border-blue-500 text-blue-300 text-center rounded-xl py-3 font-bold hover:bg-blue-600 hover:text-white transition-all"
+        >
+          📄 Flyer
+        </Link>
+
+        <Link
+          href={`/tabla?jornada=${jornada.id}`}
+          className="border border-yellow-400 text-yellow-300 text-center rounded-xl py-3 font-bold hover:bg-yellow-500 hover:text-black transition-all"
+        >
+          🏆 Tabla
+        </Link>
+
+        <Link
+          href={`/quinielas?jornada=${jornada.id}`}
+          className="border border-pink-500 text-center rounded-xl py-3 font-bold hover:bg-pink-500 transition-all"
+        >
+          👥 Quin
+        </Link>
+      </div>
+
+      {cerrada ? (
+        <div className={`text-center rounded-xl py-3 font-black ${estilos.boton}`}>
+          🔒 Registro Cerrado
+        </div>
+      ) : (
+        <Link
+          href={`/mi-quiniela?jornada=${jornada.id}`}
+          className={`block text-center rounded-xl py-3 font-black transition-all ${estilos.boton}`}
+        >
+          ⚽ Meter Quiniela
+        </Link>
+      )}
+    </div>
+  );
+}
+
 export default function Home() {
   const [copiado, setCopiado] = useState(false);
   const [mostrarPago, setMostrarPago] = useState(false);
+  const [mostrarAnteriores, setMostrarAnteriores] = useState(false);
 
   async function copiarTarjeta() {
     await navigator.clipboard.writeText(numeroTarjeta);
@@ -73,13 +162,13 @@ export default function Home() {
         <div className="text-center mb-6">
           <h1 className="text-4xl md:text-5xl font-black mb-4 flex items-center justify-center gap-3 whitespace-nowrap">
             <span>
-              QUINIELA <span className="text-pink-500">SC</span>
+              QUINIELAS <span className="text-pink-500">SC</span>
             </span>
             <span>🏆</span>
           </h1>
 
           <p className="text-lg md:text-xl text-gray-400">
-            Elige la jornada para meter tu quiniela, ver tabla o revisar registros.
+            Juega la quiniela del Mundial 2026 y compite por la gloria.
           </p>
 
           <div className="flex items-center justify-center gap-2 mt-2">
@@ -163,7 +252,7 @@ export default function Home() {
                 <p className="text-gray-200 font-bold">
                   📲 Envía tu comprobante por WhatsApp.
                 </p>
-                <p className="text-green-400 font-black">
+                <p className="text-green-400 font-bold">
                   ✅ Una vez validado el pago podrás llenar tu quiniela en la app.
                 </p>
               </div>
@@ -190,95 +279,24 @@ export default function Home() {
         </div>
 
         <div className="grid gap-4">
-          {jornadas.map((jornada) => {
-            const estilos = estilosEstado(jornada.estado);
-            const cerrada =
-  jornada.estado === "cerrada" ||
-  jornada.estado === "curso" ||
-  jornada.estado === "finalizada";
+          <TarjetaJornada jornada={jornadaActiva} />
+        </div>
 
-            return (
-              <div
-                key={jornada.id}
-                className={`border rounded-3xl p-5 shadow-xl ${estilos.card}`}
-              >
-                <div className="flex items-center justify-between gap-4 mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-pink-600 flex items-center justify-center font-black text-2xl">
-                      {jornada.numero}
-                    </div>
+        <div className="mt-8">
+          <button
+            onClick={() => setMostrarAnteriores(!mostrarAnteriores)}
+            className="w-full bg-gray-900 hover:bg-gray-800 border border-gray-700 text-white font-black text-lg rounded-3xl px-6 py-4 transition-all"
+          >
+            {mostrarAnteriores ? "📂 Ocultar quinielas anteriores" : "📂 Quinielas anteriores"}
+          </button>
 
-                    <div>
-                      <h3 className="text-3xl font-black leading-none">
-                        {jornada.nombre}
-                      </h3>
-
-                      <p className="text-yellow-300 font-bold text-sm mt-2">
-                        ⏰ {jornada.cierre}
-                      </p>
-                    </div>
-                  </div>
-
-                  <img
-                    src="/fifa-logo.png"
-                    alt="FIFA"
-                    className="h-24 w-24 object-contain"
-                  />
-                </div>
-
-                <div className="flex justify-center mb-5">
-                  <div className="flex items-center gap-2">
-                    <span className="text-2xl">{estilos.iconoEstado}</span>
-
-                    <span
-                      className={`text-xl font-black tracking-wide ${estilos.textoEstado}`}
-                    >
-                      {jornada.etiqueta}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-3 mb-3">
-                  <Link
-                    href={jornada.flyer}
-                    target="_blank"
-                    className="border border-blue-500 text-blue-300 text-center rounded-xl py-3 font-bold hover:bg-blue-600 hover:text-white transition-all"
-                  >
-                    📄 Flyer
-                  </Link>
-
-                  <Link
-                    href={`/tabla?jornada=${jornada.id}`}
-                    className="border border-yellow-400 text-yellow-300 text-center rounded-xl py-3 font-bold hover:bg-yellow-500 hover:text-black transition-all"
-                  >
-                    🏆 Tabla
-                  </Link>
-
-                  <Link
-                    href={`/quinielas?jornada=${jornada.id}`}
-                    className="border border-pink-500 text-center rounded-xl py-3 font-bold hover:bg-pink-500 transition-all"
-                  >
-                    👥 Quin
-                  </Link>
-                </div>
-
-                {cerrada ? (
-                  <div
-                    className={`text-center rounded-xl py-3 font-black ${estilos.boton}`}
-                  >
-                    🔒 Registro Cerrado
-                  </div>
-                ) : (
-                  <Link
-                    href={`/mi-quiniela?jornada=${jornada.id}`}
-                    className={`block text-center rounded-xl py-3 font-black transition-all ${estilos.boton}`}
-                  >
-                    ⚽ Meter Quiniela
-                  </Link>
-                )}
-              </div>
-            );
-          })}
+          {mostrarAnteriores && (
+            <div className="grid gap-4 mt-5">
+              {jornadasAnteriores.map((jornada) => (
+                <TarjetaJornada key={jornada.id} jornada={jornada} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </main>

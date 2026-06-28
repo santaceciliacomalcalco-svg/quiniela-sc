@@ -82,6 +82,25 @@ export const PARTIDOS_POR_JORNADA = {
   { id: 23, local: "Argelia", visitante: "Austria" },
   { id: 24, local: "Jordania", visitante: "Argentina" },
 ],
+
+"16vos": [
+  { id: 1, local: "Sudáfrica", visitante: "Canadá" },
+  { id: 2, local: "Brasil", visitante: "Japón" },
+  { id: 3, local: "Alemania", visitante: "Paraguay" },
+  { id: 4, local: "Países Bajos", visitante: "Marruecos" },
+  { id: 5, local: "Costa de Marfil", visitante: "Noruega" },
+  { id: 6, local: "Francia", visitante: "Suecia" },
+  { id: 7, local: "México", visitante: "Ecuador" },
+  { id: 8, local: "Inglaterra", visitante: "R.D. Congo" },
+  { id: 9, local: "Bélgica", visitante: "Senegal" },
+  { id: 10, local: "Estados Unidos", visitante: "Bosnia y Herzegovina" },
+  { id: 11, local: "España", visitante: "Austria" },
+  { id: 12, local: "Portugal", visitante: "Croacia" },
+  { id: 13, local: "Suiza", visitante: "Argelia" },
+  { id: 14, local: "Australia", visitante: "Egipto" },
+  { id: 15, local: "Argentina", visitante: "Cabo Verde" },
+  { id: 16, local: "Colombia", visitante: "Ghana" },
+],
 } as const;
 
 export function getPartidos(jornadaId: string) {

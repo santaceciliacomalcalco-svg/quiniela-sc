@@ -28,12 +28,17 @@ function AdminContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const jornadaParam = getJornadaId(searchParams.get("jornada"));
-  const jornadaId = jornadaParam.startsWith("jornada-")
-    ? jornadaParam
-    : `jornada-${jornadaParam}`;
+  const jornadaId = getJornadaId(searchParams.get("jornada"));
 
-  const numeroJornada = jornadaId.replace("jornada-", "");
+const nombreJornada =
+  jornadaId === "16vos"
+    ? "16vos de Final"
+    : jornadaId.replace("jornada-", "Jornada ");
+
+const numeroJornada =
+  jornadaId === "16vos"
+    ? "16vos"
+    : jornadaId.replace("jornada-", "");
   const partidos = getPartidos(jornadaId);
 
   const [nombre, setNombre] = useState("");
@@ -42,12 +47,13 @@ function AdminContent() {
   const [mensaje, setMensaje] = useState("");
 
   const [estadosJornadas, setEstadosJornadas] = useState<
-    Record<string, EstadoJornada>
-  >({
-    "jornada-1": "curso",
-    "jornada-2": "venta",
-    "jornada-3": "venta",
-  });
+  Record<string, EstadoJornada>
+>({
+  "jornada-1": "finalizada",
+  "jornada-2": "finalizada",
+  "jornada-3": "finalizada",
+  "16vos": "venta",
+});
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -100,10 +106,11 @@ function AdminContent() {
       const data = documento.data();
 
       setEstadosJornadas({
-        "jornada-1": data["jornada-1"] || "curso",
-        "jornada-2": data["jornada-2"] || "venta",
-        "jornada-3": data["jornada-3"] || "venta",
-      });
+  "jornada-1": data["jornada-1"] || "finalizada",
+  "jornada-2": data["jornada-2"] || "finalizada",
+  "jornada-3": data["jornada-3"] || "finalizada",
+  "16vos": data["16vos"] || "venta",
+});
     }
   }
 
@@ -277,10 +284,20 @@ async function guardarEstadosJornadas() {
   >
     ⚽ Jornada 3
   </button>
+  <button
+  onClick={() => router.push("/admin?jornada=16vos")}
+  className={`px-6 py-3 rounded-2xl font-black transition-all ${
+    jornadaId === "16vos"
+      ? "bg-yellow-400 text-black shadow-lg shadow-yellow-500/40"
+      : "bg-gray-900 text-white border border-gray-700 hover:border-yellow-400"
+  }`}
+>
+  ⚽ 16vos de Final
+</button>
 </div>
 
         <p className="text-pink-400 font-bold mb-2">
-          Jornada activa: {numeroJornada}
+          Jornada activa: {nombreJornada}
         </p>
 
         <p className="text-gray-400 mb-8">
@@ -295,7 +312,7 @@ async function guardarEstadosJornadas() {
           </p>
 
           <div className="grid md:grid-cols-3 gap-4">
-            {["jornada-1", "jornada-2", "jornada-3"].map((jornada) => (
+           {["jornada-1", "jornada-2", "jornada-3", "16vos"].map((jornada) => (
               <div
                 key={jornada}
                 className={`border rounded-2xl p-4 bg-gray-950 ${
@@ -305,7 +322,9 @@ async function guardarEstadosJornadas() {
                 }`}
               >
                 <h3 className="font-black text-xl mb-3">
-                  {jornada.replace("jornada-", "Jornada ")}
+                  {jornada === "16vos"
+  ? "16vos de Final"
+  : jornada.replace("jornada-", "Jornada ")}
                 </h3>
 
                 {jornada === jornadaId && (
@@ -347,22 +366,22 @@ async function guardarEstadosJornadas() {
 
         <section className="border border-pink-500 rounded-3xl p-6 mb-10">
           <h2 className="text-3xl font-black mb-4">
-            👥 Participantes Jornada {numeroJornada}
+            👥 Participantes {nombreJornada}
           </h2>
 
           <p className="text-green-400 font-bold mb-2">
-            Total de participantes Jornada {numeroJornada}: {participantes.length}
+           Total de participantes {nombreJornada}: {participantes.length}
           </p>
 
           <p className="text-yellow-300 font-bold mb-4">
-            ➕ Los nuevos participantes se agregarán a Jornada {numeroJornada}.
+          ➕ Los nuevos participantes se agregarán a {nombreJornada}.
           </p>
 
           <div className="flex flex-col md:flex-row gap-3 mb-6">
             <input
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
-              placeholder={`Nombre del participante para Jornada ${numeroJornada}`}
+              placeholder={`Nombre del participante para ${nombreJornada}`}
               className="bg-gray-900 border border-gray-700 rounded-xl px-4 py-3 w-full"
             />
 
@@ -370,7 +389,7 @@ async function guardarEstadosJornadas() {
               onClick={guardarParticipante}
               className="bg-pink-600 hover:bg-pink-500 px-6 py-3 rounded-xl font-bold"
             >
-              Agregar a J{numeroJornada}
+              Agregar
             </button>
           </div>
 
@@ -420,7 +439,7 @@ async function guardarEstadosJornadas() {
           <div className="flex items-center justify-between gap-4 mb-4">
             <div>
               <h2 className="text-3xl font-black">
-                🏁 Resultados Jornada {numeroJornada}
+                🏁 Resultados {nombreJornada}
               </h2>
               <p className="text-gray-400">
                 Estos resultados se guardan en Firebase únicamente para Jornada {numeroJornada}.
@@ -451,7 +470,7 @@ async function guardarEstadosJornadas() {
                 className="border border-pink-500 rounded-2xl p-4 bg-black"
               >
                 <p className="text-pink-400 font-black text-sm">
-                  Partido {partido.id} · Jornada {numeroJornada}
+                  Partido {partido.id} · {nombreJornada}
                 </p>
 
                 <h2 className="text-xl font-black mt-1 mb-4">
@@ -510,7 +529,7 @@ async function guardarEstadosJornadas() {
               onClick={guardarResultados}
               className="bg-pink-600 hover:bg-pink-500 text-white font-bold text-xl px-12 py-4 rounded-2xl shadow-lg shadow-pink-500/40 transition-all"
             >
-              💾 Guardar Resultados J{numeroJornada}
+              💾 Guardar Resultados
             </button>
 
             <button

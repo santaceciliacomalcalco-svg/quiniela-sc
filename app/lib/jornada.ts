@@ -1,7 +1,9 @@
-export const JORNADA_DEFAULT = "jornada-1";
+export const JORNADA_DEFAULT = "16vos";
 
 export function getJornadaId(jornadaParam?: string | null) {
   if (!jornadaParam) return JORNADA_DEFAULT;
+
+  if (jornadaParam === "16vos") return "16vos";
 
   if (jornadaParam.startsWith("jornada-")) {
     return jornadaParam;
@@ -11,16 +13,8 @@ export function getJornadaId(jornadaParam?: string | null) {
 }
 
 export const JORNADAS_DISPONIBLES = [
-  {
-    id: "jornada-1",
-    nombre: "Jornada 1",
-  },
-  {
-    id: "jornada-2",
-    nombre: "Jornada 2",
-  },
-  {
-    id: "jornada-3",
-    nombre: "Jornada 3",
-  },
+  { id: "16vos", nombre: "16vos de Final" },
+  { id: "jornada-3", nombre: "Jornada 3" },
+  { id: "jornada-2", nombre: "Jornada 2" },
+  { id: "jornada-1", nombre: "Jornada 1" },
 ];
