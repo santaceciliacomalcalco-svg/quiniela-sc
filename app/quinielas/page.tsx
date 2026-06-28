@@ -29,12 +29,17 @@ type Partido = {
 function QuinielasContent() {
   const searchParams = useSearchParams();
 
-  const jornadaParam = getJornadaId(searchParams.get("jornada"));
-  const jornadaId = jornadaParam.startsWith("jornada-")
-    ? jornadaParam
-    : `jornada-${jornadaParam}`;
+  const jornadaId = getJornadaId(searchParams.get("jornada"));
 
-  const numeroJornada = jornadaId.replace("jornada-", "");
+const nombreJornada =
+  jornadaId === "16vos"
+    ? "16vos de Final"
+    : jornadaId.replace("jornada-", "Jornada ");
+
+const numeroJornada =
+  jornadaId === "16vos"
+    ? "16vos"
+    : jornadaId.replace("jornada-", "");
   const partidos = getPartidos(jornadaId);
 
   const [participantes, setParticipantes] = useState<Participante[]>([]);
@@ -233,7 +238,16 @@ function QuinielasContent() {
         ? "bg-pink-600 text-white border-pink-400 shadow-lg shadow-pink-500/40 scale-105"
         : "bg-gray-950 text-gray-300 border-gray-700 hover:border-pink-500 hover:text-white"
     }`}
-  >
+  ><Link
+  href="/quinielas?jornada=16vos"
+  className={`px-5 py-2 rounded-full border text-sm font-black transition-all ${
+    numeroJornada === "16vos"
+      ? "bg-pink-600 text-white border-pink-400 shadow-lg shadow-pink-500/40 scale-105"
+      : "bg-gray-950 text-gray-300 border-gray-700 hover:border-pink-500 hover:text-white"
+  }`}
+>
+  16vos
+</Link>
     Jornada 1
   </Link>
 
