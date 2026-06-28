@@ -16,13 +16,19 @@ type Participante = {
 function MiQuinielaContent() {
   const searchParams = useSearchParams();
 
-  const jornadaParam = getJornadaId(searchParams.get("jornada"));
-  const jornadaId = jornadaParam.startsWith("jornada-")
-    ? jornadaParam
-    : `jornada-${jornadaParam}`;
+ const jornadaId = getJornadaId(searchParams.get("jornada"));
 
-  const numeroJornada = jornadaId.replace("jornada-", "");
-  const partidos = getPartidos(jornadaId);
+const nombreJornada =
+  jornadaId === "16vos"
+    ? "16vos de Final"
+    : jornadaId.replace("jornada-", "Jornada ");
+
+const numeroJornada =
+  jornadaId === "16vos"
+    ? "16vos"
+    : jornadaId.replace("jornada-", "");
+
+const partidos = getPartidos(jornadaId); 
 
   const [participantes, setParticipantes] = useState<Participante[]>([]);
   const [participanteId, setParticipanteId] = useState("");
